@@ -13,7 +13,23 @@ import {
     Legend, ResponsiveContainer, LineChart, Line, Area, AreaChart,
 } from 'recharts';
 import KpiCard from '../Common/KpiCard';
+import AiInsightButton from '../Common/AiInsightButton';
 import useThongKeChannel from '../../hooks/useThongKeChannel';
+
+// ── Helper: Card title kèm nút AI Insight ─────────────────────────────────────
+const ChartCardTitle = ({ title, chartType, currentData, cardRef, previousData, filters }) => (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+        <span>{title}</span>
+        <AiInsightButton
+            chartTitle={title}
+            chartType={chartType}
+            currentData={currentData}
+            previousData={previousData}
+            filters={filters}
+            cardRef={cardRef}
+        />
+    </div>
+);
 
 const { Title, Text } = Typography;
 
@@ -176,6 +192,11 @@ const StyledBarChart = ({ data, bars, height = CHART_HEIGHT, margin, layout, chi
 const TabCoSo = ({ data }) => {
     const { tong_quan: tq, chi_tiet, bieu_do_dien_tich, bieu_do_so_luong, bieu_do_trang_thai } = data;
 
+    // Refs cho AI Insight focus
+    const refDienTich = useRef(null);
+    const refTrangThai = useRef(null);
+    const refSoLuong = useRef(null);
+
     const columns = [
         { title: 'Mã', dataIndex: 'ma_co_so', width: 100, fixed: 'left' },
         { title: 'Tên cơ sở', dataIndex: 'ten_co_so', ellipsis: true },
@@ -204,46 +225,52 @@ const TabCoSo = ({ data }) => {
             </Row>
 
             <Row gutter={[16, 16]}>
-                <Col xs={24} lg={12}>
-                    <Card title="Diện tích đất theo cơ sở (m²)" bordered={false}
-                        style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
-                        <StyledBarChart
-                            data={bieu_do_dien_tich}
-                            bars={[
-                                { dataKey: 'dienTichDat',    name: 'DT đất',       fill: P.blue,  barSize: 28 },
-                                { dataKey: 'dienTichQuyDoi', name: 'DT quy đổi',   fill: P.green, barSize: 28 },
-                            ]}
-                        >
-                            <XAxis dataKey="name" tick={axisStyle} />
-                            <YAxis tick={axisStyle} />
-                        </StyledBarChart>
-                    </Card>
+                <Col xs={24} lg={12} style={{ position: 'relative' }}>
+                    <div ref={refDienTich} style={{ position: 'relative' }}>
+                        <Card title={<ChartCardTitle title="Diện tích đất theo cơ sở (m²)" chartType="bar" currentData={bieu_do_dien_tich} cardRef={refDienTich} />} bordered={false}
+                            style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
+                            <StyledBarChart
+                                data={bieu_do_dien_tich}
+                                bars={[
+                                    { dataKey: 'dienTichDat',    name: 'DT đất',       fill: P.blue,  barSize: 28 },
+                                    { dataKey: 'dienTichQuyDoi', name: 'DT quy đổi',   fill: P.green, barSize: 28 },
+                                ]}
+                            >
+                                <XAxis dataKey="name" tick={axisStyle} />
+                                <YAxis tick={axisStyle} />
+                            </StyledBarChart>
+                        </Card>
+                    </div>
                 </Col>
-                <Col xs={24} lg={12}>
-                    <Card title="Trạng thái cơ sở" bordered={false}
-                        style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
-                        <DonutChart data={bieu_do_trang_thai} />
-                    </Card>
+                <Col xs={24} lg={12} style={{ position: 'relative' }}>
+                    <div ref={refTrangThai} style={{ position: 'relative' }}>
+                        <Card title={<ChartCardTitle title="Trạng thái cơ sở" chartType="donut" currentData={bieu_do_trang_thai} cardRef={refTrangThai} />} bordered={false}
+                            style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
+                            <DonutChart data={bieu_do_trang_thai} />
+                        </Card>
+                    </div>
                 </Col>
             </Row>
 
-            <Card title="Số lượng khu nhà, phòng, thiết bị theo cơ sở" bordered={false}
-                style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}
-            >
-                <StyledBarChart
-                    data={bieu_do_so_luong}
-                    height={300}
-                    margin={{ bottom: 50, left: 8 }}
-                    bars={[
-                        { dataKey: 'soKhuNha',  name: 'Toà nhà',  fill: P.blue,   barSize: 16 },
-                        { dataKey: 'soPhong',   name: 'Phòng',    fill: P.green,  barSize: 16 },
-                        { dataKey: 'soThietBi', name: 'Thiết bị', fill: P.purple, barSize: 16 },
-                    ]}
+            <div ref={refSoLuong} style={{ position: 'relative' }}>
+                <Card title={<ChartCardTitle title="Số lượng khu nhà, phòng, thiết bị theo cơ sở" chartType="bar" currentData={bieu_do_so_luong} cardRef={refSoLuong} />} bordered={false}
+                    style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}
                 >
-                    <XAxis dataKey="name" angle={-12} textAnchor="end" interval={0} tick={{ ...axisStyle, fontSize: 11 }} />
-                    <YAxis tick={axisStyle} />
-                </StyledBarChart>
-            </Card>
+                    <StyledBarChart
+                        data={bieu_do_so_luong}
+                        height={300}
+                        margin={{ bottom: 50, left: 8 }}
+                        bars={[
+                            { dataKey: 'soKhuNha',  name: 'Toà nhà',  fill: P.blue,   barSize: 16 },
+                            { dataKey: 'soPhong',   name: 'Phòng',    fill: P.green,  barSize: 16 },
+                            { dataKey: 'soThietBi', name: 'Thiết bị', fill: P.purple, barSize: 16 },
+                        ]}
+                    >
+                        <XAxis dataKey="name" angle={-12} textAnchor="end" interval={0} tick={{ ...axisStyle, fontSize: 11 }} />
+                        <YAxis tick={axisStyle} />
+                    </StyledBarChart>
+                </Card>
+            </div>
 
             <Card title={`Chi tiết (${chi_tiet?.length || 0} cơ sở)`} bordered={false}
                 style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
@@ -260,6 +287,11 @@ const TabCoSo = ({ data }) => {
 const TabKhuNha = ({ data, danhSachCoSo }) => {
     const [filterCoSo, setFilterCoSo] = useState(null);
     const { chi_tiet } = data;
+
+    // Refs cho AI Insight focus
+    const refLoai = useRef(null);
+    const refTrangThai = useRef(null);
+    const refDienTich = useRef(null);
 
     // Lọc dữ liệu theo cơ sở được chọn
     const filteredData = useMemo(() => {
@@ -356,41 +388,47 @@ const TabKhuNha = ({ data, danhSachCoSo }) => {
             </Row>
 
             <Row gutter={[16, 16]}>
-                <Col xs={24} lg={12}>
-                    <Card title="Phân bố theo loại toà nhà" bordered={false}
-                        style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
-                        <StyledBarChart
-                            data={bieu_do_loai}
-                            bars={[{ dataKey: 'soLuong', name: 'Số lượng', fill: P.blue, barSize: 40 }]}
-                        >
-                            <XAxis dataKey="name" tick={axisStyle} />
-                            <YAxis tick={axisStyle} />
-                        </StyledBarChart>
-                    </Card>
+                <Col xs={24} lg={12} style={{ position: 'relative' }}>
+                    <div ref={refLoai} style={{ position: 'relative' }}>
+                        <Card title={<ChartCardTitle title="Phân bố theo loại toà nhà" chartType="bar" currentData={bieu_do_loai} cardRef={refLoai} />} bordered={false}
+                            style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
+                            <StyledBarChart
+                                data={bieu_do_loai}
+                                bars={[{ dataKey: 'soLuong', name: 'Số lượng', fill: P.blue, barSize: 40 }]}
+                            >
+                                <XAxis dataKey="name" tick={axisStyle} />
+                                <YAxis tick={axisStyle} />
+                            </StyledBarChart>
+                        </Card>
+                    </div>
                 </Col>
-                <Col xs={24} lg={12}>
-                    <Card title="Trạng thái toà nhà" bordered={false}
-                        style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
-                        <DonutChart data={bieu_do_trang_thai} />
-                    </Card>
+                <Col xs={24} lg={12} style={{ position: 'relative' }}>
+                    <div ref={refTrangThai} style={{ position: 'relative' }}>
+                        <Card title={<ChartCardTitle title="Trạng thái toà nhà" chartType="donut" currentData={bieu_do_trang_thai} cardRef={refTrangThai} />} bordered={false}
+                            style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
+                            <DonutChart data={bieu_do_trang_thai} />
+                        </Card>
+                    </div>
                 </Col>
             </Row>
 
-            <Card title="Diện tích sàn & đào tạo theo toà nhà (m²)" bordered={false}
-                style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
-                <StyledBarChart
-                    data={bieu_do_dien_tich}
-                    height={300}
-                    margin={{ bottom: 50, left: 8 }}
-                    bars={[
-                        { dataKey: 'sanXD',    name: 'DT sàn XD',    fill: P.blue,  barSize: 16 },
-                        { dataKey: 'dtDaoTao', name: 'DT đào tạo',   fill: P.green, barSize: 16 },
-                    ]}
-                >
-                    <XAxis dataKey="name" angle={-12} textAnchor="end" interval={0} tick={{ ...axisStyle, fontSize: 11 }} />
-                    <YAxis tickFormatter={v => `${Math.round(v / 1000)}k`} tick={axisStyle} />
-                </StyledBarChart>
-            </Card>
+            <div ref={refDienTich} style={{ position: 'relative' }}>
+                <Card title={<ChartCardTitle title="Diện tích sàn & đào tạo theo toà nhà (m²)" chartType="bar" currentData={bieu_do_dien_tich} cardRef={refDienTich} />} bordered={false}
+                    style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
+                    <StyledBarChart
+                        data={bieu_do_dien_tich}
+                        height={300}
+                        margin={{ bottom: 50, left: 8 }}
+                        bars={[
+                            { dataKey: 'sanXD',    name: 'DT sàn XD',    fill: P.blue,  barSize: 16 },
+                            { dataKey: 'dtDaoTao', name: 'DT đào tạo',   fill: P.green, barSize: 16 },
+                        ]}
+                    >
+                        <XAxis dataKey="name" angle={-12} textAnchor="end" interval={0} tick={{ ...axisStyle, fontSize: 11 }} />
+                        <YAxis tickFormatter={v => `${Math.round(v / 1000)}k`} tick={axisStyle} />
+                    </StyledBarChart>
+                </Card>
+            </div>
 
             <Card title={`Chi tiết (${filteredData.chi_tiet?.length || 0} toà nhà)`} bordered={false}
                 style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
@@ -407,6 +445,11 @@ const TabKhuNha = ({ data, danhSachCoSo }) => {
 const TabPhong = ({ data, danhSachCoSo, danhSachKhuNha, refreshSignal }) => {
     const [filterCoSo, setFilterCoSo] = useState(null);
     const [filterKhuNha, setFilterKhuNha] = useState(null);
+
+    // Refs cho AI Insight focus
+    const refLoaiPhong = useRef(null);
+    const refTrangThaiPhong = useRef(null);
+    const refTang = useRef(null);
 
     // Phân trang backend & Thống kê theo bộ lọc
     const [tableData, setTableData] = useState({ data: [], current_page: 1, per_page: 10, total: 0 });
@@ -538,40 +581,46 @@ const TabPhong = ({ data, danhSachCoSo, danhSachKhuNha, refreshSignal }) => {
             </Row>
 
             <Row gutter={[16, 16]}>
-                <Col xs={24} lg={14}>
-                    <Card title="Phân bố theo loại phòng" bordered={false}
-                        style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
-                        <StyledBarChart
-                            data={bieu_do_loai}
-                            bars={[
-                                { dataKey: 'soLuong', name: 'Số phòng',  fill: P.blue,   barSize: 28 },
-                                { dataKey: 'sucChua', name: 'Sức chứa', fill: P.purple, barSize: 28 },
-                            ]}
-                        >
-                            <XAxis dataKey="name" tick={axisStyle} />
-                            <YAxis tick={axisStyle} />
-                        </StyledBarChart>
-                    </Card>
+                <Col xs={24} lg={14} style={{ position: 'relative' }}>
+                    <div ref={refLoaiPhong} style={{ position: 'relative' }}>
+                        <Card title={<ChartCardTitle title="Phân bố theo loại phòng" chartType="bar" currentData={bieu_do_loai} cardRef={refLoaiPhong} />} bordered={false}
+                            style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
+                            <StyledBarChart
+                                data={bieu_do_loai}
+                                bars={[
+                                    { dataKey: 'soLuong', name: 'Số phòng',  fill: P.blue,   barSize: 28 },
+                                    { dataKey: 'sucChua', name: 'Sức chứa', fill: P.purple, barSize: 28 },
+                                ]}
+                            >
+                                <XAxis dataKey="name" tick={axisStyle} />
+                                <YAxis tick={axisStyle} />
+                            </StyledBarChart>
+                        </Card>
+                    </div>
                 </Col>
-                <Col xs={24} lg={10}>
-                    <Card title="Trạng thái phòng" bordered={false}
-                        style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
-                        <DonutChart data={bieu_do_trang_thai} />
-                    </Card>
+                <Col xs={24} lg={10} style={{ position: 'relative' }}>
+                    <div ref={refTrangThaiPhong} style={{ position: 'relative' }}>
+                        <Card title={<ChartCardTitle title="Trạng thái phòng" chartType="donut" currentData={bieu_do_trang_thai} cardRef={refTrangThaiPhong} />} bordered={false}
+                            style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
+                            <DonutChart data={bieu_do_trang_thai} />
+                        </Card>
+                    </div>
                 </Col>
             </Row>
 
-            <Card title="Phân bố phòng theo tầng" bordered={false}
-                style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
-                <StyledBarChart
-                    data={bieu_do_tang}
-                    height={240}
-                    bars={[{ dataKey: 'soPhong', name: 'Số phòng', fill: P.teal, barSize: 32 }]}
-                >
-                    <XAxis dataKey="name" tick={axisStyle} />
-                    <YAxis tick={axisStyle} />
-                </StyledBarChart>
-            </Card>
+            <div ref={refTang} style={{ position: 'relative' }}>
+                <Card title={<ChartCardTitle title="Phân bố phòng theo tầng" chartType="bar" currentData={bieu_do_tang} cardRef={refTang} />} bordered={false}
+                    style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
+                    <StyledBarChart
+                        data={bieu_do_tang}
+                        height={240}
+                        bars={[{ dataKey: 'soPhong', name: 'Số phòng', fill: P.teal, barSize: 32 }]}
+                    >
+                        <XAxis dataKey="name" tick={axisStyle} />
+                        <YAxis tick={axisStyle} />
+                    </StyledBarChart>
+                </Card>
+            </div>
 
             <Card title={`Chi tiết (${formatNumber(tableData.total)} phòng)`} bordered={false}
                 style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
@@ -605,6 +654,12 @@ const TabThietBi = ({ data, danhSachCoSo, danhSachKhuNha, danhSachPhong, refresh
     const [filterCoSo, setFilterCoSo] = useState(null);
     const [filterKhuNha, setFilterKhuNha] = useState(null);
     const [filterPhong, setFilterPhong] = useState(null);
+
+    // Refs cho AI Insight focus
+    const refLoaiTB = useRef(null);
+    const refTrangThaiTB = useRef(null);
+    const refNamMua = useRef(null);
+    const refHang = useRef(null);
 
     // Phân trang backend & Thống kê theo bộ lọc
     const [tableData, setTableData] = useState({ data: [], current_page: 1, per_page: 10, total: 0 });
@@ -762,80 +817,88 @@ const TabThietBi = ({ data, danhSachCoSo, danhSachKhuNha, danhSachPhong, refresh
             </Row>
 
             <Row gutter={[16, 16]}>
-                <Col xs={24} lg={14}>
-                    <Card title="Số lượng & giá trị theo loại thiết bị" bordered={false}
-                        style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
-                        <StyledBarChart
-                            data={bieu_do_loai}
-                            bars={[
-                                { dataKey: 'soLuong',    name: 'Số lượng', fill: P.blue,   barSize: 28, yAxisId: 'left' },
-                                { dataKey: 'tongGiaTri', name: 'Giá trị',  fill: P.purple, barSize: 28, yAxisId: 'right' },
-                            ]}
-                        >
-                            <XAxis dataKey="name" tick={axisStyle} />
-                            <YAxis yAxisId="left" tick={axisStyle} />
-                            <YAxis yAxisId="right" orientation="right" tickFormatter={v => `${Math.round(v / 1e6)}M`} tick={axisStyle} />
-                        </StyledBarChart>
-                    </Card>
+                <Col xs={24} lg={14} style={{ position: 'relative' }}>
+                    <div ref={refLoaiTB} style={{ position: 'relative' }}>
+                        <Card title={<ChartCardTitle title="Số lượng & giá trị theo loại thiết bị" chartType="bar" currentData={bieu_do_loai} cardRef={refLoaiTB} />} bordered={false}
+                            style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
+                            <StyledBarChart
+                                data={bieu_do_loai}
+                                bars={[
+                                    { dataKey: 'soLuong',    name: 'Số lượng', fill: P.blue,   barSize: 28, yAxisId: 'left' },
+                                    { dataKey: 'tongGiaTri', name: 'Giá trị',  fill: P.purple, barSize: 28, yAxisId: 'right' },
+                                ]}
+                            >
+                                <XAxis dataKey="name" tick={axisStyle} />
+                                <YAxis yAxisId="left" tick={axisStyle} />
+                                <YAxis yAxisId="right" orientation="right" tickFormatter={v => `${Math.round(v / 1e6)}M`} tick={axisStyle} />
+                            </StyledBarChart>
+                        </Card>
+                    </div>
                 </Col>
-                <Col xs={24} lg={10}>
-                    <Card title="Trạng thái thiết bị" bordered={false}
-                        style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
-                        <DonutChart data={bieu_do_trang_thai} />
-                    </Card>
+                <Col xs={24} lg={10} style={{ position: 'relative' }}>
+                    <div ref={refTrangThaiTB} style={{ position: 'relative' }}>
+                        <Card title={<ChartCardTitle title="Trạng thái thiết bị" chartType="donut" currentData={bieu_do_trang_thai} cardRef={refTrangThaiTB} />} bordered={false}
+                            style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
+                            <DonutChart data={bieu_do_trang_thai} />
+                        </Card>
+                    </div>
                 </Col>
             </Row>
 
             <Row gutter={[16, 16]}>
-                <Col xs={24} lg={14}>
-                    <Card title="Xu hướng mua sắm theo năm" bordered={false}
-                        style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
-                        <ResponsiveContainer width="100%" height={260}>
-                            <AreaChart data={bieu_do_nam_mua} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                                <defs>
-                                    <linearGradient id="gradBlue" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%"  stopColor={P.blue}   stopOpacity={0.2} />
-                                        <stop offset="95%" stopColor={P.blue}   stopOpacity={0} />
-                                    </linearGradient>
-                                    <linearGradient id="gradPurple" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%"  stopColor={P.purple} stopOpacity={0.2} />
-                                        <stop offset="95%" stopColor={P.purple} stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid {...gridStyle} />
-                                <XAxis dataKey="name" tick={axisStyle} />
-                                <YAxis yAxisId="left"  tick={axisStyle} />
-                                <YAxis yAxisId="right" orientation="right" tickFormatter={v => `${Math.round(v / 1e6)}M`} tick={axisStyle} />
-                                <RTooltip {...tooltipStyle} formatter={(v, name) => name === 'Giá trị' ? formatCurrency(v) : v} />
-                                <Legend iconType="circle" iconSize={8}
-                                    formatter={(value) => <span style={{ color: '#555', fontSize: 12 }}>{value}</span>} />
-                                <Area yAxisId="left"  type="monotone" dataKey="soLuong"    name="Số lượng"
-                                    stroke={P.blue}   strokeWidth={2.5} fill="url(#gradBlue)"
-                                    dot={{ r: 4, fill: P.blue,   strokeWidth: 0 }}
-                                    activeDot={{ r: 6 }} />
-                                <Area yAxisId="right" type="monotone" dataKey="tongGiaTri" name="Giá trị"
-                                    stroke={P.purple} strokeWidth={2.5} fill="url(#gradPurple)"
-                                    dot={{ r: 4, fill: P.purple, strokeWidth: 0 }}
-                                    activeDot={{ r: 6 }} />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </Card>
+                <Col xs={24} lg={14} style={{ position: 'relative' }}>
+                    <div ref={refNamMua} style={{ position: 'relative' }}>
+                        <Card title={<ChartCardTitle title="Xu hướng mua sắm theo năm" chartType="area" currentData={bieu_do_nam_mua} cardRef={refNamMua} />} bordered={false}
+                            style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
+                            <ResponsiveContainer width="100%" height={260}>
+                                <AreaChart data={bieu_do_nam_mua} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="gradBlue" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%"  stopColor={P.blue}   stopOpacity={0.2} />
+                                            <stop offset="95%" stopColor={P.blue}   stopOpacity={0} />
+                                        </linearGradient>
+                                        <linearGradient id="gradPurple" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%"  stopColor={P.purple} stopOpacity={0.2} />
+                                            <stop offset="95%" stopColor={P.purple} stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid {...gridStyle} />
+                                    <XAxis dataKey="name" tick={axisStyle} />
+                                    <YAxis yAxisId="left"  tick={axisStyle} />
+                                    <YAxis yAxisId="right" orientation="right" tickFormatter={v => `${Math.round(v / 1e6)}M`} tick={axisStyle} />
+                                    <RTooltip {...tooltipStyle} formatter={(v, name) => name === 'Giá trị' ? formatCurrency(v) : v} />
+                                    <Legend iconType="circle" iconSize={8}
+                                        formatter={(value) => <span style={{ color: '#555', fontSize: 12 }}>{value}</span>} />
+                                    <Area yAxisId="left"  type="monotone" dataKey="soLuong"    name="Số lượng"
+                                        stroke={P.blue}   strokeWidth={2.5} fill="url(#gradBlue)"
+                                        dot={{ r: 4, fill: P.blue,   strokeWidth: 0 }}
+                                        activeDot={{ r: 6 }} />
+                                    <Area yAxisId="right" type="monotone" dataKey="tongGiaTri" name="Giá trị"
+                                        stroke={P.purple} strokeWidth={2.5} fill="url(#gradPurple)"
+                                        dot={{ r: 4, fill: P.purple, strokeWidth: 0 }}
+                                        activeDot={{ r: 6 }} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </Card>
+                    </div>
                 </Col>
-                <Col xs={24} lg={10}>
-                    <Card title="Top 10 hãng sản xuất" bordered={false}
-                        style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
-                        <ResponsiveContainer width="100%" height={260}>
-                            <BarChart data={bieu_do_hang} layout="vertical"
-                                margin={{ top: 4, right: 16, left: 8, bottom: 4 }}>
-                                <CartesianGrid strokeDasharray="0" stroke="#f0f0f0" strokeWidth={1} horizontal={false} />
-                                <XAxis type="number" tick={axisStyle} />
-                                <YAxis type="category" dataKey="name" width={85} tick={{ ...axisStyle, fontSize: 11 }} />
-                                <RTooltip {...tooltipStyle} />
-                                <Bar dataKey="soLuong" name="Số lượng" fill={P.teal} barSize={14} radius={[0, 4, 4, 0]}
-                                    background={{ fill: '#f5f5f5', radius: [0, 4, 4, 0] }} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </Card>
+                <Col xs={24} lg={10} style={{ position: 'relative' }}>
+                    <div ref={refHang} style={{ position: 'relative' }}>
+                        <Card title={<ChartCardTitle title="Top 10 hãng sản xuất" chartType="bar-horizontal" currentData={bieu_do_hang} cardRef={refHang} />} bordered={false}
+                            style={{ borderRadius: 10, boxShadow: '0 1px 6px rgba(0,0,0,.06)' }}>
+                            <ResponsiveContainer width="100%" height={260}>
+                                <BarChart data={bieu_do_hang} layout="vertical"
+                                    margin={{ top: 4, right: 16, left: 8, bottom: 4 }}>
+                                    <CartesianGrid strokeDasharray="0" stroke="#f0f0f0" strokeWidth={1} horizontal={false} />
+                                    <XAxis type="number" tick={axisStyle} />
+                                    <YAxis type="category" dataKey="name" width={85} tick={{ ...axisStyle, fontSize: 11 }} />
+                                    <RTooltip {...tooltipStyle} />
+                                    <Bar dataKey="soLuong" name="Số lượng" fill={P.teal} barSize={14} radius={[0, 4, 4, 0]}
+                                        background={{ fill: '#f5f5f5', radius: [0, 4, 4, 0] }} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </Card>
+                    </div>
                 </Col>
             </Row>
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import MainLayout from './Layout/MainLayout';
 import { Card, Row, Col, Typography, Space, Button, message, Tooltip as AntTooltip } from 'antd';
 import {
@@ -7,6 +7,7 @@ import {
 } from '@ant-design/icons';
 import useThongKeChannel from '../hooks/useThongKeChannel';
 import KpiCard from './Common/KpiCard';
+import AiInsightButton from './Common/AiInsightButton';
 import {
     PieChart, Pie, Cell, RadialBar, RadialBarChart, Legend,
     BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -115,34 +116,37 @@ const trangThaiLabel = (t) => ({ active: 'Hoạt động', maintenance: 'Bảo t
 
 
 // ─── Chart Card ───────────────────────────────────────────────────────────
-const ChartCard = ({ title, children }) => (
-    <Card
-        bordered={false}
-        className="
-            overflow-hidden
-            rounded-3xl
-            border
-            border-white/25
-            bg-white/55
-            backdrop-blur-xl
-            shadow-[0_8px_30px_rgba(15,23,42,.05)]"
-        styles={{
-            body: {
-                padding: 20,
-            },
-        }}
-    >
-        <div className="mb-5 flex items-center justify-between">
-            <div>
-                <h3 className="text-[15px] font-semibold tracking-[-0.03em] text-slate-900">
-                    {title}
-                </h3>
+const ChartCard = React.forwardRef(({ title, children, insightButton }, ref) => (
+    <div ref={ref} style={{ position: 'relative' }}>
+        <Card
+            bordered={false}
+            className="
+                overflow-hidden
+                rounded-3xl
+                border
+                border-white/25
+                bg-white/55
+                backdrop-blur-xl
+                shadow-[0_8px_30px_rgba(15,23,42,.05)]"
+            styles={{
+                body: {
+                    padding: 20,
+                },
+            }}
+        >
+            <div className="mb-5 flex items-center justify-between">
+                <div>
+                    <h3 className="text-[15px] font-semibold tracking-[-0.03em] text-slate-900">
+                        {title}
+                    </h3>
+                </div>
+                {insightButton && <div>{insightButton}</div>}
             </div>
-        </div>
 
-        {children}
-    </Card>
-);
+            {children}
+        </Card>
+    </div>
+));
 
 // ─── Donut Chart ──────────────────────────────────────────────────────────
 const DonutChart = ({ data }) => {
@@ -340,6 +344,13 @@ const Dashboard = ({ statistics: initStats, thongKeLoaiPhong: initLoaiPhong, tho
         .sort((a, b) => (b.soLuong || 0) - (a.soLuong || 0));
     const coSoData = (rawCoSo || []).map(d => ({ name: d.ten_co_so, soKhuNha: d.so_khu_nha }));
     const trangThaiPhongData = (rawTrangThai || []).map(d => ({ name: trangThaiLabel(d.trang_thai), value: d.so_luong }));
+
+    // Refs cho AI Insight focus
+    const chartLoaiPhongRef = useRef(null);
+    const chartTrangThaiRef = useRef(null);
+    const chartCoSoRef = useRef(null);
+    const chartThietBiRef = useRef(null);
+
     const [activeBar, setActiveBar] = useState(null);
     const [activeDeviceBar, setActiveDeviceBar] = useState(null);
 
@@ -389,8 +400,19 @@ const Dashboard = ({ statistics: initStats, thongKeLoaiPhong: initLoaiPhong, tho
                 {/* ── Hàng 1 ── */}
                 <Row gutter={[16, 16]} align="stretch">
                     {/* BarChart: loại phòng — so sánh theo nhóm */}
-                    <Col xs={24} lg={14}>
-                        <ChartCard title="Phân bố theo loại phòng">
+                    <Col xs={24} lg={14} style={{ position: 'relative' }}>
+                        <ChartCard
+                            ref={chartLoaiPhongRef}
+                            title="Phân bố theo loại phòng"
+                            insightButton={
+                                <AiInsightButton
+                                    chartTitle="Phân bố theo loại phòng"
+                                    chartType="bar"
+                                    currentData={loaiPhongData}
+                                    cardRef={chartLoaiPhongRef}
+                                />
+                            }
+                        >
                             <ResponsiveContainer width="100%" height={260}>
                                 <BarChart data={loaiPhongData} margin={{ top: 16, right: 12, left: -10, bottom: 6 }}>
                                     <defs>
@@ -476,8 +498,19 @@ const Dashboard = ({ statistics: initStats, thongKeLoaiPhong: initLoaiPhong, tho
                         </ChartCard>
                     </Col>
                     {/* Donut: trạng thái */}
-                    <Col xs={24} lg={10}>
-                        <ChartCard title="Trạng thái phòng">
+                    <Col xs={24} lg={10} style={{ position: 'relative' }}>
+                        <ChartCard
+                            ref={chartTrangThaiRef}
+                            title="Trạng thái phòng"
+                            insightButton={
+                                <AiInsightButton
+                                    chartTitle="Trạng thái phòng"
+                                    chartType="donut"
+                                    currentData={trangThaiPhongData}
+                                    cardRef={chartTrangThaiRef}
+                                />
+                            }
+                        >
                             <DonutChart data={trangThaiPhongData} />
                         </ChartCard>
                     </Col>
@@ -485,8 +518,19 @@ const Dashboard = ({ statistics: initStats, thongKeLoaiPhong: initLoaiPhong, tho
                 {/* ── Hàng 2 ── */}
                 <Row gutter={[16, 16]} align="stretch">
                     {/* Horizontal Bar: thiết bị theo loại */}
-                    <Col xs={24} lg={12}>
-                        <ChartCard title="Toà nhà theo cơ sở">
+                    <Col xs={24} lg={12} style={{ position: 'relative' }}>
+                        <ChartCard
+                            ref={chartCoSoRef}
+                            title="Toà nhà theo cơ sở"
+                            insightButton={
+                                <AiInsightButton
+                                    chartTitle="Toà nhà theo cơ sở"
+                                    chartType="radial"
+                                    currentData={coSoData}
+                                    cardRef={chartCoSoRef}
+                                />
+                            }
+                        >
                             <ResponsiveContainer width="100%" height={240}>
                                 <RadialBarChart
                                     cx="50%"
@@ -547,8 +591,19 @@ const Dashboard = ({ statistics: initStats, thongKeLoaiPhong: initLoaiPhong, tho
                         </ChartCard>
                     </Col>
                     {/* BarChart: khu nhà theo cơ sở — bar dọc gradient */}
-                    <Col xs={24} lg={12}>
-                        <ChartCard title="Thiết bị theo loại">
+                    <Col xs={24} lg={12} style={{ position: 'relative' }}>
+                        <ChartCard
+                            ref={chartThietBiRef}
+                            title="Thiết bị theo loại"
+                            insightButton={
+                                <AiInsightButton
+                                    chartTitle="Thiết bị theo loại"
+                                    chartType="bar-horizontal"
+                                    currentData={loaiThietBiData}
+                                    cardRef={chartThietBiRef}
+                                />
+                            }
+                        >
                             <ResponsiveContainer width="100%" height={300}>
                                 <BarChart
                                     data={loaiThietBiData}

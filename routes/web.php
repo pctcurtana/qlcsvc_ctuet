@@ -16,6 +16,7 @@ use App\Http\Controllers\BaoCaoSuCoController;
 use App\Http\Controllers\QuanLyQrController;
 use App\Http\Controllers\DotKiemTraThietBiController;
 use App\Http\Controllers\XuatBaoCaoController;
+use App\Http\Controllers\AiInsightController;
 
 /*
 |--------------------------------------------------------------------------
@@ -239,6 +240,9 @@ Route::get('/thiet-bi/{thietBi}/lich-su-bao-duong', [LichSuBaoDuongController::c
     Route::middleware('permission:xuat-bao-cao,can_delete')->group(function () {
         Route::delete('/xuat-bao-cao/{dotBaoCao}', [XuatBaoCaoController::class, 'destroy'])->name('xuat-bao-cao.destroy');
     });
+
+    // ==================== AI Insight ====================
+    Route::post('/ai/insight', [AiInsightController::class, 'generate'])->name('ai.insight');
 
     // ==================== Import Kết quả & Chi tiết ====================
     Route::get('/imports/status', [\App\Http\Controllers\ImportController::class, 'status'])->name('imports.status');
