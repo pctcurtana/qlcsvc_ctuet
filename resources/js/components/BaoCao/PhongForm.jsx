@@ -195,7 +195,7 @@ const PhongForm = ({ phong, token }) => {
                                 <TextArea
                                     rows={4}
                                     placeholder="Ví dụ: Máy chiếu không lên hình, màn hình bị tối hoàn toàn..."
-                                    style={{ borderRadius: 10, fontSize: 15 }}
+                                    style={{ borderRadius: 10, fontSize: 16 }}
                                     showCount
                                     maxLength={1000}
                                 />
