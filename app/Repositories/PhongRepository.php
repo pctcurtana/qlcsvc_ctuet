@@ -160,9 +160,9 @@ class PhongRepository implements PhongRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function getForQrManagement(): Collection
+    public function paginateForQr(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
-        return $this->model
+        $query = $this->model
             ->where('phongs.trang_thai_du_lieu', 'hien_hanh')
             ->leftJoin('khu_nhas as kn', 'kn.id', '=', 'phongs.khu_nha_id')
             ->leftJoin('co_sos as cs', 'cs.id', '=', 'kn.co_so_id')
@@ -170,9 +170,28 @@ class PhongRepository implements PhongRepositoryInterface
                 'phongs.id', 'phongs.ma_phong', 'phongs.ten_phong', 'phongs.qr_token',
                 'phongs.khu_nha_id', 'kn.co_so_id',
                 'kn.ten_khu_nha', 'cs.ten_co_so'
-            )
-            ->orderBy('cs.ten_co_so')->orderBy('kn.ten_khu_nha')->orderBy('phongs.ten_phong')
-            ->get();
+            );
+
+        if (isset($filters['search']) && !empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('phongs.ten_phong', 'like', "%{$search}%")
+                  ->orWhere('phongs.ma_phong', 'like', "%{$search}%")
+                  ->orWhere('kn.ten_khu_nha', 'like', "%{$search}%")
+                  ->orWhere('cs.ten_co_so', 'like', "%{$search}%");
+            });
+        }
+
+        if (isset($filters['co_so_id']) && !empty($filters['co_so_id'])) {
+            $query->where('kn.co_so_id', $filters['co_so_id']);
+        }
+
+        if (isset($filters['khu_nha_id']) && !empty($filters['khu_nha_id'])) {
+            $query->where('phongs.khu_nha_id', $filters['khu_nha_id']);
+        }
+
+        return $query->orderBy('cs.ten_co_so')->orderBy('kn.ten_khu_nha')->orderBy('phongs.ten_phong')
+            ->paginate($perPage);
     }
 
     /**

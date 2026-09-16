@@ -142,10 +142,10 @@ const QrCell = ({ url, filename, onPrint }) => {
 };
 
 // ─── Tab Phòng ─────────────────────────────────────────────────────────────
-const TabPhong = ({ phongs, baseUrl, perm, coSos, khuNhas }) => {
-    const [search, setSearch] = useState('');
-    const [coSoFilter, setCoSoFilter] = useState(null);
-    const [khuNhaFilter, setKhuNhaFilter] = useState(null);
+const TabPhong = ({ phongs, baseUrl, perm, coSos, khuNhas, filters }) => {
+    const [search, setSearch] = useState(filters.search || '');
+    const [coSoFilter, setCoSoFilter] = useState(filters.co_so_id || null);
+    const [khuNhaFilter, setKhuNhaFilter] = useState(filters.khu_nha_id || null);
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [printModalOpen, setPrintModalOpen] = useState(false);
     const printRef = useRef(null);
@@ -155,13 +155,34 @@ const TabPhong = ({ phongs, baseUrl, perm, coSos, khuNhas }) => {
         documentTitle: `QR_Phong_${new Date().getTime()}.pdf`,
     });
 
-    const filtered = phongs.filter(p => {
-        const matchSearch = !search || [p.ten_phong, p.ma_phong, p.ten_khu_nha, p.ten_co_so]
-            .some(v => v?.toLowerCase().includes(search.toLowerCase()));
-        const matchCoSo = !coSoFilter || p.co_so_id === coSoFilter;
-        const matchKhuNha = !khuNhaFilter || p.khu_nha_id === khuNhaFilter;
-        return matchSearch && matchCoSo && matchKhuNha;
-    });
+    const fetchData = (params = {}) => {
+        router.get('/quan-ly-qr', {
+            tab: 'phong',
+            search: params.search ?? search,
+            co_so_id: params.co_so_id ?? coSoFilter,
+            khu_nha_id: params.khu_nha_id ?? khuNhaFilter,
+            per_page: params.per_page ?? phongs.per_page,
+            page: params.page ?? 1,
+        }, {
+            preserveState: true,
+            replace: true,
+        });
+    };
+
+    const handleSearch = (value) => {
+        fetchData({ search: value, page: 1 });
+    };
+
+    const handleCoSoFilter = (value) => {
+        setCoSoFilter(value);
+        setKhuNhaFilter(null);
+        fetchData({ co_so_id: value, khu_nha_id: null, page: 1 });
+    };
+
+    const handleKhuNhaFilter = (value) => {
+        setKhuNhaFilter(value);
+        fetchData({ khu_nha_id: value, page: 1 });
+    };
 
     const filteredKhuNhas = (khuNhas || []).filter(kn => 
         !coSoFilter || kn.co_so_id === coSoFilter
@@ -281,8 +302,10 @@ const TabPhong = ({ phongs, baseUrl, perm, coSos, khuNhas }) => {
         }] : []),
     ];
 
+    const phongData = phongs?.data ?? [];
+
     const printData = selectedRowKeys
-        .map(id => phongs.find(p => p.id === id))
+        .map(id => phongData.find(p => p.id === id))
         .filter(Boolean)
         .map(p => ({
             id: p.id,
@@ -302,7 +325,11 @@ const TabPhong = ({ phongs, baseUrl, perm, coSos, khuNhas }) => {
                         prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
                         size="large"
                         value={search}
-                        onChange={e => setSearch(e.target.value)}
+                        onChange={e => {
+                            setSearch(e.target.value);
+                            if (!e.target.value) handleSearch('');
+                        }}
+                        onPressEnter={e => handleSearch(e.target.value)}
                     />
                 </Col>
                 <Col xs={24} sm={12} md={5}>
@@ -310,8 +337,8 @@ const TabPhong = ({ phongs, baseUrl, perm, coSos, khuNhas }) => {
                         placeholder="Lọc theo cơ sở"
                         size="large"
                         allowClear
-                        value={coSoFilter}
-                        onChange={v => { setCoSoFilter(v); setKhuNhaFilter(null); }}
+                        value={coSoFilter || undefined}
+                        onChange={handleCoSoFilter}
                         options={(coSos || []).map(cs => ({ value: cs.id, label: cs.ten_co_so }))}
                         style={{ width: '100%' }}
                     />
@@ -321,8 +348,8 @@ const TabPhong = ({ phongs, baseUrl, perm, coSos, khuNhas }) => {
                         placeholder="Lọc theo toà nhà"
                         size="large"
                         allowClear
-                        value={khuNhaFilter}
-                        onChange={setKhuNhaFilter}
+                        value={khuNhaFilter || undefined}
+                        onChange={handleKhuNhaFilter}
                         options={filteredKhuNhas.map(kn => ({ value: kn.id, label: kn.ten_khu_nha }))}
                         style={{ width: '100%' }}
                     />
@@ -340,10 +367,19 @@ const TabPhong = ({ phongs, baseUrl, perm, coSos, khuNhas }) => {
                 </Col>
             </Row>
             <Table
-                dataSource={filtered}
+                dataSource={phongData}
                 columns={columns}
                 rowKey="id"
-                pagination={{ pageSize: 10, showTotal: t => `Tổng ${t} phòng` }}
+                pagination={{
+                    current: phongs.current_page,
+                    pageSize: phongs.per_page,
+                    total: phongs.total,
+                    showSizeChanger: true,
+                    showTotal: (total) => `Tổng ${total} phòng`,
+                    onChange: (page, pageSize) => {
+                        fetchData({ page, per_page: pageSize });
+                    },
+                }}
                 scroll={{ x: 900 }}
                 size="small"
                 rowSelection={{
@@ -384,11 +420,11 @@ const TabPhong = ({ phongs, baseUrl, perm, coSos, khuNhas }) => {
 };
 
 // ─── Tab Thiết bị ──────────────────────────────────────────────────────────
-const TabThietBi = ({ thietBis, baseUrl, perm, coSos, khuNhas, phongsList }) => {
-    const [search, setSearch] = useState('');
-    const [coSoFilter, setCoSoFilter] = useState(null);
-    const [khuNhaFilter, setKhuNhaFilter] = useState(null);
-    const [phongFilter, setPhongFilter] = useState(null);
+const TabThietBi = ({ thietBis, baseUrl, perm, coSos, khuNhas, phongsList, filters }) => {
+    const [search, setSearch] = useState(filters.search || '');
+    const [coSoFilter, setCoSoFilter] = useState(filters.co_so_id || null);
+    const [khuNhaFilter, setKhuNhaFilter] = useState(filters.khu_nha_id || null);
+    const [phongFilter, setPhongFilter] = useState(filters.phong_id || null);
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [printModalOpen, setPrintModalOpen] = useState(false);
     const printRef = useRef(null);
@@ -398,14 +434,42 @@ const TabThietBi = ({ thietBis, baseUrl, perm, coSos, khuNhas, phongsList }) => 
         documentTitle: `QR_ThietBi_${new Date().getTime()}.pdf`,
     });
 
-    const filtered = thietBis.filter(tb => {
-        const matchSearch = !search || [tb.ten_thiet_bi, tb.ma_thiet_bi, tb.ten_phong, tb.ten_khu_nha]
-            .some(v => v?.toLowerCase().includes(search.toLowerCase()));
-        const matchCoSo = !coSoFilter || tb.co_so_id === coSoFilter;
-        const matchKhuNha = !khuNhaFilter || tb.khu_nha_id === khuNhaFilter;
-        const matchPhong = !phongFilter || tb.phong_id === phongFilter;
-        return matchSearch && matchCoSo && matchKhuNha && matchPhong;
-    });
+    const fetchData = (params = {}) => {
+        router.get('/quan-ly-qr', {
+            tab: 'thiet-bi',
+            search: params.search ?? search,
+            co_so_id: params.co_so_id ?? coSoFilter,
+            khu_nha_id: params.khu_nha_id ?? khuNhaFilter,
+            phong_id: params.phong_id ?? phongFilter,
+            per_page: params.per_page ?? thietBis.per_page,
+            page: params.page ?? 1,
+        }, {
+            preserveState: true,
+            replace: true,
+        });
+    };
+
+    const handleSearch = (value) => {
+        fetchData({ search: value, page: 1 });
+    };
+
+    const handleCoSoFilter = (value) => {
+        setCoSoFilter(value);
+        setKhuNhaFilter(null);
+        setPhongFilter(null);
+        fetchData({ co_so_id: value, khu_nha_id: null, phong_id: null, page: 1 });
+    };
+
+    const handleKhuNhaFilter = (value) => {
+        setKhuNhaFilter(value);
+        setPhongFilter(null);
+        fetchData({ khu_nha_id: value, phong_id: null, page: 1 });
+    };
+
+    const handlePhongFilter = (value) => {
+        setPhongFilter(value);
+        fetchData({ phong_id: value, page: 1 });
+    };
 
     const filteredKhuNhas = (khuNhas || []).filter(kn => !coSoFilter || kn.co_so_id === coSoFilter);
     const filteredPhongs = (phongsList || []).filter(p => !khuNhaFilter || p.khu_nha_id === khuNhaFilter);
@@ -529,8 +593,10 @@ const TabThietBi = ({ thietBis, baseUrl, perm, coSos, khuNhas, phongsList }) => 
         }] : []),
     ];
 
+    const tbData = thietBis?.data ?? [];
+
     const printData = selectedRowKeys
-        .map(id => thietBis.find(tb => tb.id === id))
+        .map(id => tbData.find(tb => tb.id === id))
         .filter(Boolean)
         .map(tb => ({
             id: tb.id,
@@ -550,7 +616,11 @@ const TabThietBi = ({ thietBis, baseUrl, perm, coSos, khuNhas, phongsList }) => 
                         prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
                         size="large"
                         value={search}
-                        onChange={e => setSearch(e.target.value)}
+                        onChange={e => {
+                            setSearch(e.target.value);
+                            if (!e.target.value) handleSearch('');
+                        }}
+                        onPressEnter={e => handleSearch(e.target.value)}
                     />
                 </Col>
                 <Col xs={24} sm={12} md={4}>
@@ -558,8 +628,8 @@ const TabThietBi = ({ thietBis, baseUrl, perm, coSos, khuNhas, phongsList }) => 
                         placeholder="Cơ sở"
                         size="large"
                         allowClear
-                        value={coSoFilter}
-                        onChange={v => { setCoSoFilter(v); setKhuNhaFilter(null); setPhongFilter(null); }}
+                        value={coSoFilter || undefined}
+                        onChange={handleCoSoFilter}
                         options={(coSos || []).map(cs => ({ value: cs.id, label: cs.ten_co_so }))}
                         style={{ width: '100%' }}
                     />
@@ -569,8 +639,8 @@ const TabThietBi = ({ thietBis, baseUrl, perm, coSos, khuNhas, phongsList }) => 
                         placeholder="Toà nhà"
                         size="large"
                         allowClear
-                        value={khuNhaFilter}
-                        onChange={v => { setKhuNhaFilter(v); setPhongFilter(null); }}
+                        value={khuNhaFilter || undefined}
+                        onChange={handleKhuNhaFilter}
                         options={filteredKhuNhas.map(kn => ({ value: kn.id, label: kn.ten_khu_nha }))}
                         style={{ width: '100%' }}
                     />
@@ -580,8 +650,8 @@ const TabThietBi = ({ thietBis, baseUrl, perm, coSos, khuNhas, phongsList }) => 
                         placeholder="Phòng"
                         size="large"
                         allowClear
-                        value={phongFilter}
-                        onChange={setPhongFilter}
+                        value={phongFilter || undefined}
+                        onChange={handlePhongFilter}
                         options={filteredPhongs.map(p => ({ value: p.id, label: p.ten_phong }))}
                         style={{ width: '100%' }}
                         disabled={!khuNhaFilter}
@@ -600,10 +670,19 @@ const TabThietBi = ({ thietBis, baseUrl, perm, coSos, khuNhas, phongsList }) => 
                 </Col>
             </Row>
             <Table
-                dataSource={filtered}
+                dataSource={tbData}
                 columns={columns}
                 rowKey="id"
-                pagination={{ pageSize: 10, showTotal: t => `Tổng ${t} thiết bị` }}
+                pagination={{
+                    current: thietBis.current_page,
+                    pageSize: thietBis.per_page,
+                    total: thietBis.total,
+                    showSizeChanger: true,
+                    showTotal: (total) => `Tổng ${total} thiết bị`,
+                    onChange: (page, pageSize) => {
+                        fetchData({ page, per_page: pageSize });
+                    },
+                }}
                 scroll={{ x: 900 }}
                 size="small"
                 rowSelection={{
@@ -644,18 +723,26 @@ const TabThietBi = ({ thietBis, baseUrl, perm, coSos, khuNhas, phongsList }) => 
 };
 
 // ─── Main Page ─────────────────────────────────────────────────────────────
-const QuanLyQrIndex = ({ phongs, thietBis, baseUrl, coSos, khuNhas, phongsList }) => {
+const QuanLyQrIndex = ({ phongs, thietBis, baseUrl, coSos, khuNhas, phongsList, filters = {}, activeTab = 'phong' }) => {
     const perm = usePermission('quan-ly-qr');
+
+    const handleTabChange = (key) => {
+        router.get('/quan-ly-qr', { tab: key }, {
+            preserveState: false,
+            replace: true,
+        });
+    };
+
     const tabItems = [
         {
             key: 'phong',
-            label: <Space><HomeOutlined />Phòng ({phongs?.length ?? 0})</Space>,
-            children: <TabPhong phongs={phongs ?? []} baseUrl={baseUrl} perm={perm} coSos={coSos} khuNhas={khuNhas} />,
+            label: <Space><HomeOutlined />Phòng ({phongs?.total ?? 0})</Space>,
+            children: <TabPhong phongs={phongs ?? { data: [] }} baseUrl={baseUrl} perm={perm} coSos={coSos} khuNhas={khuNhas} filters={activeTab === 'phong' ? filters : {}} />,
         },
         {
             key: 'thiet-bi',
-            label: <Space><ToolOutlined />Thiết bị ({thietBis?.length ?? 0})</Space>,
-            children: <TabThietBi thietBis={thietBis ?? []} baseUrl={baseUrl} perm={perm} coSos={coSos} khuNhas={khuNhas} phongsList={phongsList} />,
+            label: <Space><ToolOutlined />Thiết bị ({thietBis?.total ?? 0})</Space>,
+            children: <TabThietBi thietBis={thietBis ?? { data: [] }} baseUrl={baseUrl} perm={perm} coSos={coSos} khuNhas={khuNhas} phongsList={phongsList} filters={activeTab === 'thiet-bi' ? filters : {}} />,
         },
     ];
 
@@ -678,7 +765,7 @@ const QuanLyQrIndex = ({ phongs, thietBis, baseUrl, coSos, khuNhas, phongsList }
                 </Card>
 
                 <Card>
-                    <Tabs defaultActiveKey="phong" items={tabItems} size="large" />
+                    <Tabs activeKey={activeTab} onChange={handleTabChange} items={tabItems} size="large" />
                 </Card>
             </Space>
         </MainLayout>

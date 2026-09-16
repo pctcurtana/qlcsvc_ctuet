@@ -96,11 +96,13 @@ interface PhongRepositoryInterface
     public function getStatsByStatus(): Collection;
 
     /**
-     * Lấy danh sách phòng cho quản lý QR (kèm khu nhà, cơ sở)
+     * Lấy danh sách phòng cho quản lý QR có phân trang và filter (kèm khu nhà, cơ sở)
      *
-     * @return Collection
+     * @param array $filters
+     * @param int $perPage
+     * @return LengthAwarePaginator
      */
-    public function getForQrManagement(): Collection;
+    public function paginateForQr(array $filters = [], int $perPage = 10): LengthAwarePaginator;
 
     /**
      * Tạo lại QR token cho phòng

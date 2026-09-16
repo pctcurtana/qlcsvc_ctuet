@@ -40,7 +40,7 @@ const AiInsightButton = ({ chartTitle, chartType, currentData, previousData, fil
                 size="small"
                 loading={loading}
                 onClick={handleClick}
-                className="!rounded-[10px] !text-xs !font-semibold !border !border-purple-500/20 !text-purple-600 !bg-purple-500/[0.06] !inline-flex !items-center !gap-1.5 hover:!bg-purple-500/[0.12] hover:!border-purple-500/[0.35] hover:!-translate-y-px hover:!shadow-[0_4px_12px_rgba(124,58,237,0.15)] !transition-all !duration-200"
+                className="!rounded-[10px] !text-xs !font-semibold !border !border-[#2563EB]/25 !text-[#2563EB] !bg-[#2563EB]/10 !inline-flex !items-center !gap-1.5 hover:!bg-[#2563EB]/20 hover:!border-[#2563EB]/40 hover:!-translate-y-px hover:!shadow-[0_4px_12px_rgba(37,99,235,0.15)] !transition-all !duration-200"
             >
                 <BulbOutlined className="text-sm" />
                 AI Insight

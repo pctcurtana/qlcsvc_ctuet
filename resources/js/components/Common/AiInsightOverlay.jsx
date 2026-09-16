@@ -82,16 +82,16 @@ const AiInsightOverlay = ({ visible, onClose, cardRef, loading, insight, error }
                     height: `${rect.height + pad * 2}px`,
                     borderRadius: `${borderRadius}px`,
                     boxShadow: `
-                        0 0 0 2px rgba(124, 58, 237, 0.25),
+                        0 0 0 2px rgba(37, 99, 235, 0.25),
                         0 0 0 9999px rgba(15, 23, 42, 0.5),
-                        0 20px 60px rgba(124, 58, 237, 0.12)
+                        0 20px 60px rgba(37, 99, 235, 0.12)
                     `,
                 }}
             />
 
             {/* Insight card — absolute → cuộn cùng spotlight */}
             <div
-                className={`absolute overflow-y-auto rounded-2xl border border-purple-200/30 transition-all duration-300 ${insight || loading || error ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+                className={`absolute overflow-y-auto rounded-2xl transition-all duration-300 ${insight || loading || error ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
                     }`}
                 style={{
                     zIndex: 10001,
@@ -117,11 +117,11 @@ const AiInsightOverlay = ({ visible, onClose, cardRef, loading, insight, error }
 
                     {/* Header */}
                     <div className="flex items-center gap-1.5 mb-3">
-                        <BulbOutlined className="text-sm text-purple-700" />
+                        <BulbOutlined className="text-base text-[#2563eb]" />
                         <span
                             className="text-xs font-extrabold tracking-wider uppercase bg-clip-text text-transparent"
                             style={{
-                                backgroundImage: 'linear-gradient(135deg, #7c3aed, #a855f7)',
+                                backgroundImage: 'linear-gradient(135deg, #2563eb, #38bdf8)',
                                 WebkitBackgroundClip: 'text',
                                 fontFamily: "'Plus Jakarta Sans', sans-serif",
                             }}
@@ -134,9 +134,9 @@ const AiInsightOverlay = ({ visible, onClose, cardRef, loading, insight, error }
                     <div>
                         {loading && (
                             <div className="flex flex-col gap-2">
-                                <div className="h-3.5 w-full rounded-lg animate-pulse bg-purple-100" />
-                                <div className="h-3.5 w-3/5 rounded-lg animate-pulse bg-purple-50" />
-                                <div className="h-3.5 w-4/5 rounded-lg animate-pulse bg-purple-100" />
+                                <div className="h-3.5 w-full rounded-lg animate-pulse bg-blue-100" />
+                                <div className="h-3.5 w-3/5 rounded-lg animate-pulse bg-blue-50" />
+                                <div className="h-3.5 w-4/5 rounded-lg animate-pulse bg-blue-100" />
                             </div>
                         )}
                         {insight && !loading && (

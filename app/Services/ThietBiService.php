@@ -253,11 +253,11 @@ class ThietBiService
     }
 
     /**
-     * Lấy danh sách thiết bị cho quản lý QR (kèm phòng, khu nhà, cơ sở).
+     * Lấy danh sách thiết bị cho quản lý QR có phân trang (kèm phòng, khu nhà, cơ sở).
      */
-    public function getForQrManagement(): \Illuminate\Database\Eloquent\Collection
+    public function getQrPaginated(array $filters = [], int $perPage = 10): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        return $this->thietBiRepository->getForQrManagement();
+        return $this->thietBiRepository->paginateForQr($filters, $perPage);
     }
 
     /**

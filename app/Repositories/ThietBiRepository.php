@@ -303,9 +303,9 @@ class ThietBiRepository implements ThietBiRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function getForQrManagement(): Collection
+    public function paginateForQr(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
-        return $this->model
+        $query = $this->model
             ->where('thiet_bis.trang_thai_du_lieu', 'hien_hanh')
             ->leftJoin('phongs as p', 'p.id', '=', 'thiet_bis.phong_id')
             ->leftJoin('khu_nhas as kn', 'kn.id', '=', 'p.khu_nha_id')
@@ -314,9 +314,32 @@ class ThietBiRepository implements ThietBiRepositoryInterface
                 'thiet_bis.id', 'thiet_bis.qr_token', 'thiet_bis.ma_thiet_bi', 'thiet_bis.ten_thiet_bi', 'thiet_bis.loai_thiet_bi',
                 'thiet_bis.phong_id', 'p.khu_nha_id', 'kn.co_so_id',
                 'p.ten_phong', 'kn.ten_khu_nha', 'cs.ten_co_so'
-            )
-            ->orderBy('cs.ten_co_so')->orderBy('kn.ten_khu_nha')->orderBy('p.ten_phong')
-            ->get();
+            );
+
+        if (isset($filters['search']) && !empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('thiet_bis.ten_thiet_bi', 'like', "%{$search}%")
+                  ->orWhere('thiet_bis.ma_thiet_bi', 'like', "%{$search}%")
+                  ->orWhere('p.ten_phong', 'like', "%{$search}%")
+                  ->orWhere('kn.ten_khu_nha', 'like', "%{$search}%");
+            });
+        }
+
+        if (isset($filters['co_so_id']) && !empty($filters['co_so_id'])) {
+            $query->where('kn.co_so_id', $filters['co_so_id']);
+        }
+
+        if (isset($filters['khu_nha_id']) && !empty($filters['khu_nha_id'])) {
+            $query->where('p.khu_nha_id', $filters['khu_nha_id']);
+        }
+
+        if (isset($filters['phong_id']) && !empty($filters['phong_id'])) {
+            $query->where('thiet_bis.phong_id', $filters['phong_id']);
+        }
+
+        return $query->orderBy('cs.ten_co_so')->orderBy('kn.ten_khu_nha')->orderBy('p.ten_phong')
+            ->paginate($perPage);
     }
 
     /**

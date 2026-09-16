@@ -208,11 +208,11 @@ class PhongService
     }
 
     /**
-     * Lấy danh sách phòng cho quản lý QR (kèm khu nhà, cơ sở).
+     * Lấy danh sách phòng cho quản lý QR có phân trang (kèm khu nhà, cơ sở).
      */
-    public function getForQrManagement(): \Illuminate\Database\Eloquent\Collection
+    public function getQrPaginated(array $filters = [], int $perPage = 10): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        return $this->phongRepository->getForQrManagement();
+        return $this->phongRepository->paginateForQr($filters, $perPage);
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Services\CoSoService;
 use App\Services\KhuNhaService;
 use App\Services\PhongService;
 use App\Services\ThietBiService;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class QuanLyQrController extends Controller
@@ -27,10 +28,27 @@ class QuanLyQrController extends Controller
         $this->khuNhaService  = $khuNhaService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $phongs   = $this->phongService->getForQrManagement();
-        $thietBis = $this->thietBiService->getForQrManagement();
+        $activeTab = $request->input('tab', 'phong');
+        $perPage   = (int) $request->input('per_page', 10);
+
+        // Filters chung cho cả 2 tab
+        $filters = $request->only(['search', 'co_so_id', 'khu_nha_id', 'phong_id', 'per_page', 'tab']);
+
+        // Phân trang phòng
+        $phongFilters = $request->only(['search', 'co_so_id', 'khu_nha_id']);
+        $phongs = $this->phongService->getQrPaginated(
+            $activeTab === 'phong' ? $phongFilters : [],
+            $activeTab === 'phong' ? $perPage : 10
+        );
+
+        // Phân trang thiết bị
+        $tbFilters = $request->only(['search', 'co_so_id', 'khu_nha_id', 'phong_id']);
+        $thietBis = $this->thietBiService->getQrPaginated(
+            $activeTab === 'thiet-bi' ? $tbFilters : [],
+            $activeTab === 'thiet-bi' ? $perPage : 10
+        );
 
         // Danh sách cơ sở, khu nhà, phòng cho bộ lọc
         $coSos     = $this->coSoService->getActiveCoSos();
@@ -46,6 +64,8 @@ class QuanLyQrController extends Controller
             'khuNhas'    => $khuNhas,
             'phongsList' => $phongsList,
             'baseUrl'    => $baseUrl,
+            'filters'    => $filters,
+            'activeTab'  => $activeTab,
         ]);
     }
 

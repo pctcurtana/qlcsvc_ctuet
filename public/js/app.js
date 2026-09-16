@@ -221981,7 +221981,7 @@ var AiInsightButton = function AiInsightButton(_ref) {
       size: "small",
       loading: loading,
       onClick: handleClick,
-      className: "!rounded-[10px] !text-xs !font-semibold !border !border-purple-500/20 !text-purple-600 !bg-purple-500/[0.06] !inline-flex !items-center !gap-1.5 hover:!bg-purple-500/[0.12] hover:!border-purple-500/[0.35] hover:!-translate-y-px hover:!shadow-[0_4px_12px_rgba(124,58,237,0.15)] !transition-all !duration-200",
+      className: "!rounded-[10px] !text-xs !font-semibold !border !border-[#2563EB]/25 !text-[#2563EB] !bg-[#2563EB]/10 !inline-flex !items-center !gap-1.5 hover:!bg-[#2563EB]/20 hover:!border-[#2563EB]/40 hover:!-translate-y-px hover:!shadow-[0_4px_12px_rgba(37,99,235,0.15)] !transition-all !duration-200",
       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_ant_design_icons__WEBPACK_IMPORTED_MODULE_3__["default"], {
         className: "text-sm"
       }), "AI Insight"]
@@ -222109,10 +222109,10 @@ var AiInsightOverlay = function AiInsightOverlay(_ref) {
         width: "".concat(rect.width + pad * 2, "px"),
         height: "".concat(rect.height + pad * 2, "px"),
         borderRadius: "".concat(borderRadius, "px"),
-        boxShadow: "\n                        0 0 0 2px rgba(124, 58, 237, 0.25),\n                        0 0 0 9999px rgba(15, 23, 42, 0.5),\n                        0 20px 60px rgba(124, 58, 237, 0.12)\n                    "
+        boxShadow: "\n                        0 0 0 2px rgba(37, 99, 235, 0.25),\n                        0 0 0 9999px rgba(15, 23, 42, 0.5),\n                        0 20px 60px rgba(37, 99, 235, 0.12)\n                    "
       }
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
-      className: "absolute overflow-y-auto rounded-2xl border border-purple-200/30 transition-all duration-300 ".concat(insight || loading || error ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'),
+      className: "absolute overflow-y-auto rounded-2xl transition-all duration-300 ".concat(insight || loading || error ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'),
       style: {
         zIndex: 10001,
         top: "".concat(insightTop, "px"),
@@ -222134,11 +222134,11 @@ var AiInsightOverlay = function AiInsightOverlay(_ref) {
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
           className: "flex items-center gap-1.5 mb-3",
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_ant_design_icons__WEBPACK_IMPORTED_MODULE_2__["default"], {
-            className: "text-sm text-purple-700"
+            className: "text-base text-[#2563eb]"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
             className: "text-xs font-extrabold tracking-wider uppercase bg-clip-text text-transparent",
             style: {
-              backgroundImage: 'linear-gradient(135deg, #7c3aed, #a855f7)',
+              backgroundImage: 'linear-gradient(135deg, #2563eb, #38bdf8)',
               WebkitBackgroundClip: 'text',
               fontFamily: "'Plus Jakarta Sans', sans-serif"
             },
@@ -222148,11 +222148,11 @@ var AiInsightOverlay = function AiInsightOverlay(_ref) {
           children: [loading && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
             className: "flex flex-col gap-2",
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
-              className: "h-3.5 w-full rounded-lg animate-pulse bg-purple-100"
+              className: "h-3.5 w-full rounded-lg animate-pulse bg-blue-100"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
-              className: "h-3.5 w-3/5 rounded-lg animate-pulse bg-purple-50"
+              className: "h-3.5 w-3/5 rounded-lg animate-pulse bg-blue-50"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
-              className: "h-3.5 w-4/5 rounded-lg animate-pulse bg-purple-100"
+              className: "h-3.5 w-4/5 rounded-lg animate-pulse bg-blue-100"
             })]
           }), insight && !loading && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("p", {
             className: "m-0 text-[13.5px] font-medium leading-7 text-slate-800",
@@ -229992,20 +229992,22 @@ var QrCell = function QrCell(_ref2) {
 
 // ─── Tab Phòng ─────────────────────────────────────────────────────────────
 var TabPhong = function TabPhong(_ref3) {
+  var _phongs$data;
   var phongs = _ref3.phongs,
     baseUrl = _ref3.baseUrl,
     perm = _ref3.perm,
     coSos = _ref3.coSos,
-    khuNhas = _ref3.khuNhas;
-  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    khuNhas = _ref3.khuNhas,
+    filters = _ref3.filters;
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(filters.search || ''),
     _useState2 = _slicedToArray(_useState, 2),
     search = _useState2[0],
     setSearch = _useState2[1];
-  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(filters.co_so_id || null),
     _useState4 = _slicedToArray(_useState3, 2),
     coSoFilter = _useState4[0],
     setCoSoFilter = _useState4[1];
-  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(filters.khu_nha_id || null),
     _useState6 = _slicedToArray(_useState5, 2),
     khuNhaFilter = _useState6[0],
     setKhuNhaFilter = _useState6[1];
@@ -230022,14 +230024,43 @@ var TabPhong = function TabPhong(_ref3) {
     contentRef: printRef,
     documentTitle: "QR_Phong_".concat(new Date().getTime(), ".pdf")
   });
-  var filtered = phongs.filter(function (p) {
-    var matchSearch = !search || [p.ten_phong, p.ma_phong, p.ten_khu_nha, p.ten_co_so].some(function (v) {
-      return v === null || v === void 0 ? void 0 : v.toLowerCase().includes(search.toLowerCase());
+  var fetchData = function fetchData() {
+    var _params$search, _params$co_so_id, _params$khu_nha_id, _params$per_page, _params$page;
+    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    _inertiajs_react__WEBPACK_IMPORTED_MODULE_1__.router.get('/quan-ly-qr', {
+      tab: 'phong',
+      search: (_params$search = params.search) !== null && _params$search !== void 0 ? _params$search : search,
+      co_so_id: (_params$co_so_id = params.co_so_id) !== null && _params$co_so_id !== void 0 ? _params$co_so_id : coSoFilter,
+      khu_nha_id: (_params$khu_nha_id = params.khu_nha_id) !== null && _params$khu_nha_id !== void 0 ? _params$khu_nha_id : khuNhaFilter,
+      per_page: (_params$per_page = params.per_page) !== null && _params$per_page !== void 0 ? _params$per_page : phongs.per_page,
+      page: (_params$page = params.page) !== null && _params$page !== void 0 ? _params$page : 1
+    }, {
+      preserveState: true,
+      replace: true
     });
-    var matchCoSo = !coSoFilter || p.co_so_id === coSoFilter;
-    var matchKhuNha = !khuNhaFilter || p.khu_nha_id === khuNhaFilter;
-    return matchSearch && matchCoSo && matchKhuNha;
-  });
+  };
+  var handleSearch = function handleSearch(value) {
+    fetchData({
+      search: value,
+      page: 1
+    });
+  };
+  var handleCoSoFilter = function handleCoSoFilter(value) {
+    setCoSoFilter(value);
+    setKhuNhaFilter(null);
+    fetchData({
+      co_so_id: value,
+      khu_nha_id: null,
+      page: 1
+    });
+  };
+  var handleKhuNhaFilter = function handleKhuNhaFilter(value) {
+    setKhuNhaFilter(value);
+    fetchData({
+      khu_nha_id: value,
+      page: 1
+    });
+  };
   var filteredKhuNhas = (khuNhas || []).filter(function (kn) {
     return !coSoFilter || kn.co_so_id === coSoFilter;
   });
@@ -230151,8 +230182,9 @@ var TabPhong = function TabPhong(_ref3) {
       });
     }
   }] : []));
+  var phongData = (_phongs$data = phongs === null || phongs === void 0 ? void 0 : phongs.data) !== null && _phongs$data !== void 0 ? _phongs$data : [];
   var printData = selectedRowKeys.map(function (id) {
-    return phongs.find(function (p) {
+    return phongData.find(function (p) {
       return p.id === id;
     });
   }).filter(Boolean).map(function (p) {
@@ -230187,7 +230219,11 @@ var TabPhong = function TabPhong(_ref3) {
           size: "large",
           value: search,
           onChange: function onChange(e) {
-            return setSearch(e.target.value);
+            setSearch(e.target.value);
+            if (!e.target.value) handleSearch('');
+          },
+          onPressEnter: function onPressEnter(e) {
+            return handleSearch(e.target.value);
           }
         })
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsx)(antd__WEBPACK_IMPORTED_MODULE_8__["default"], {
@@ -230198,11 +230234,8 @@ var TabPhong = function TabPhong(_ref3) {
           placeholder: "L\u1ECDc theo c\u01A1 s\u1EDF",
           size: "large",
           allowClear: true,
-          value: coSoFilter,
-          onChange: function onChange(v) {
-            setCoSoFilter(v);
-            setKhuNhaFilter(null);
-          },
+          value: coSoFilter || undefined,
+          onChange: handleCoSoFilter,
           options: (coSos || []).map(function (cs) {
             return {
               value: cs.id,
@@ -230221,8 +230254,8 @@ var TabPhong = function TabPhong(_ref3) {
           placeholder: "L\u1ECDc theo to\xE0 nh\xE0",
           size: "large",
           allowClear: true,
-          value: khuNhaFilter,
-          onChange: setKhuNhaFilter,
+          value: khuNhaFilter || undefined,
+          onChange: handleKhuNhaFilter,
           options: filteredKhuNhas.map(function (kn) {
             return {
               value: kn.id,
@@ -230244,13 +230277,22 @@ var TabPhong = function TabPhong(_ref3) {
         })
       })]
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsx)(antd__WEBPACK_IMPORTED_MODULE_15__["default"], {
-      dataSource: filtered,
+      dataSource: phongData,
       columns: columns,
       rowKey: "id",
       pagination: {
-        pageSize: 10,
-        showTotal: function showTotal(t) {
-          return "T\u1ED5ng ".concat(t, " ph\xF2ng");
+        current: phongs.current_page,
+        pageSize: phongs.per_page,
+        total: phongs.total,
+        showSizeChanger: true,
+        showTotal: function showTotal(total) {
+          return "T\u1ED5ng ".concat(total, " ph\xF2ng");
+        },
+        onChange: function onChange(page, pageSize) {
+          fetchData({
+            page: page,
+            per_page: pageSize
+          });
         }
       },
       scroll: {
@@ -230338,25 +230380,27 @@ var TabPhong = function TabPhong(_ref3) {
 
 // ─── Tab Thiết bị ──────────────────────────────────────────────────────────
 var TabThietBi = function TabThietBi(_ref4) {
+  var _thietBis$data;
   var thietBis = _ref4.thietBis,
     baseUrl = _ref4.baseUrl,
     perm = _ref4.perm,
     coSos = _ref4.coSos,
     khuNhas = _ref4.khuNhas,
-    phongsList = _ref4.phongsList;
-  var _useState1 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    phongsList = _ref4.phongsList,
+    filters = _ref4.filters;
+  var _useState1 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(filters.search || ''),
     _useState10 = _slicedToArray(_useState1, 2),
     search = _useState10[0],
     setSearch = _useState10[1];
-  var _useState11 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+  var _useState11 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(filters.co_so_id || null),
     _useState12 = _slicedToArray(_useState11, 2),
     coSoFilter = _useState12[0],
     setCoSoFilter = _useState12[1];
-  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(filters.khu_nha_id || null),
     _useState14 = _slicedToArray(_useState13, 2),
     khuNhaFilter = _useState14[0],
     setKhuNhaFilter = _useState14[1];
-  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(filters.phong_id || null),
     _useState16 = _slicedToArray(_useState15, 2),
     phongFilter = _useState16[0],
     setPhongFilter = _useState16[1];
@@ -230373,15 +230417,55 @@ var TabThietBi = function TabThietBi(_ref4) {
     contentRef: printRef,
     documentTitle: "QR_ThietBi_".concat(new Date().getTime(), ".pdf")
   });
-  var filtered = thietBis.filter(function (tb) {
-    var matchSearch = !search || [tb.ten_thiet_bi, tb.ma_thiet_bi, tb.ten_phong, tb.ten_khu_nha].some(function (v) {
-      return v === null || v === void 0 ? void 0 : v.toLowerCase().includes(search.toLowerCase());
+  var fetchData = function fetchData() {
+    var _params$search2, _params$co_so_id2, _params$khu_nha_id2, _params$phong_id, _params$per_page2, _params$page2;
+    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    _inertiajs_react__WEBPACK_IMPORTED_MODULE_1__.router.get('/quan-ly-qr', {
+      tab: 'thiet-bi',
+      search: (_params$search2 = params.search) !== null && _params$search2 !== void 0 ? _params$search2 : search,
+      co_so_id: (_params$co_so_id2 = params.co_so_id) !== null && _params$co_so_id2 !== void 0 ? _params$co_so_id2 : coSoFilter,
+      khu_nha_id: (_params$khu_nha_id2 = params.khu_nha_id) !== null && _params$khu_nha_id2 !== void 0 ? _params$khu_nha_id2 : khuNhaFilter,
+      phong_id: (_params$phong_id = params.phong_id) !== null && _params$phong_id !== void 0 ? _params$phong_id : phongFilter,
+      per_page: (_params$per_page2 = params.per_page) !== null && _params$per_page2 !== void 0 ? _params$per_page2 : thietBis.per_page,
+      page: (_params$page2 = params.page) !== null && _params$page2 !== void 0 ? _params$page2 : 1
+    }, {
+      preserveState: true,
+      replace: true
     });
-    var matchCoSo = !coSoFilter || tb.co_so_id === coSoFilter;
-    var matchKhuNha = !khuNhaFilter || tb.khu_nha_id === khuNhaFilter;
-    var matchPhong = !phongFilter || tb.phong_id === phongFilter;
-    return matchSearch && matchCoSo && matchKhuNha && matchPhong;
-  });
+  };
+  var handleSearch = function handleSearch(value) {
+    fetchData({
+      search: value,
+      page: 1
+    });
+  };
+  var handleCoSoFilter = function handleCoSoFilter(value) {
+    setCoSoFilter(value);
+    setKhuNhaFilter(null);
+    setPhongFilter(null);
+    fetchData({
+      co_so_id: value,
+      khu_nha_id: null,
+      phong_id: null,
+      page: 1
+    });
+  };
+  var handleKhuNhaFilter = function handleKhuNhaFilter(value) {
+    setKhuNhaFilter(value);
+    setPhongFilter(null);
+    fetchData({
+      khu_nha_id: value,
+      phong_id: null,
+      page: 1
+    });
+  };
+  var handlePhongFilter = function handlePhongFilter(value) {
+    setPhongFilter(value);
+    fetchData({
+      phong_id: value,
+      page: 1
+    });
+  };
   var filteredKhuNhas = (khuNhas || []).filter(function (kn) {
     return !coSoFilter || kn.co_so_id === coSoFilter;
   });
@@ -230514,8 +230598,9 @@ var TabThietBi = function TabThietBi(_ref4) {
       });
     }
   }] : []));
+  var tbData = (_thietBis$data = thietBis === null || thietBis === void 0 ? void 0 : thietBis.data) !== null && _thietBis$data !== void 0 ? _thietBis$data : [];
   var printData = selectedRowKeys.map(function (id) {
-    return thietBis.find(function (tb) {
+    return tbData.find(function (tb) {
       return tb.id === id;
     });
   }).filter(Boolean).map(function (tb) {
@@ -230551,7 +230636,11 @@ var TabThietBi = function TabThietBi(_ref4) {
           size: "large",
           value: search,
           onChange: function onChange(e) {
-            return setSearch(e.target.value);
+            setSearch(e.target.value);
+            if (!e.target.value) handleSearch('');
+          },
+          onPressEnter: function onPressEnter(e) {
+            return handleSearch(e.target.value);
           }
         })
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsx)(antd__WEBPACK_IMPORTED_MODULE_8__["default"], {
@@ -230562,12 +230651,8 @@ var TabThietBi = function TabThietBi(_ref4) {
           placeholder: "C\u01A1 s\u1EDF",
           size: "large",
           allowClear: true,
-          value: coSoFilter,
-          onChange: function onChange(v) {
-            setCoSoFilter(v);
-            setKhuNhaFilter(null);
-            setPhongFilter(null);
-          },
+          value: coSoFilter || undefined,
+          onChange: handleCoSoFilter,
           options: (coSos || []).map(function (cs) {
             return {
               value: cs.id,
@@ -230586,11 +230671,8 @@ var TabThietBi = function TabThietBi(_ref4) {
           placeholder: "To\xE0 nh\xE0",
           size: "large",
           allowClear: true,
-          value: khuNhaFilter,
-          onChange: function onChange(v) {
-            setKhuNhaFilter(v);
-            setPhongFilter(null);
-          },
+          value: khuNhaFilter || undefined,
+          onChange: handleKhuNhaFilter,
           options: filteredKhuNhas.map(function (kn) {
             return {
               value: kn.id,
@@ -230609,8 +230691,8 @@ var TabThietBi = function TabThietBi(_ref4) {
           placeholder: "Ph\xF2ng",
           size: "large",
           allowClear: true,
-          value: phongFilter,
-          onChange: setPhongFilter,
+          value: phongFilter || undefined,
+          onChange: handlePhongFilter,
           options: filteredPhongs.map(function (p) {
             return {
               value: p.id,
@@ -230633,13 +230715,22 @@ var TabThietBi = function TabThietBi(_ref4) {
         })
       })]
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsx)(antd__WEBPACK_IMPORTED_MODULE_15__["default"], {
-      dataSource: filtered,
+      dataSource: tbData,
       columns: columns,
       rowKey: "id",
       pagination: {
-        pageSize: 10,
-        showTotal: function showTotal(t) {
-          return "T\u1ED5ng ".concat(t, " thi\u1EBFt b\u1ECB");
+        current: thietBis.current_page,
+        pageSize: thietBis.per_page,
+        total: thietBis.total,
+        showSizeChanger: true,
+        showTotal: function showTotal(total) {
+          return "T\u1ED5ng ".concat(total, " thi\u1EBFt b\u1ECB");
+        },
+        onChange: function onChange(page, pageSize) {
+          fetchData({
+            page: page,
+            per_page: pageSize
+          });
         }
       },
       scroll: {
@@ -230727,38 +230818,56 @@ var TabThietBi = function TabThietBi(_ref4) {
 
 // ─── Main Page ─────────────────────────────────────────────────────────────
 var QuanLyQrIndex = function QuanLyQrIndex(_ref5) {
-  var _phongs$length, _thietBis$length;
+  var _phongs$total, _thietBis$total;
   var phongs = _ref5.phongs,
     thietBis = _ref5.thietBis,
     baseUrl = _ref5.baseUrl,
     coSos = _ref5.coSos,
     khuNhas = _ref5.khuNhas,
-    phongsList = _ref5.phongsList;
+    phongsList = _ref5.phongsList,
+    _ref5$filters = _ref5.filters,
+    filters = _ref5$filters === void 0 ? {} : _ref5$filters,
+    _ref5$activeTab = _ref5.activeTab,
+    activeTab = _ref5$activeTab === void 0 ? 'phong' : _ref5$activeTab;
   var perm = (0,_hooks_usePermission__WEBPACK_IMPORTED_MODULE_2__["default"])('quan-ly-qr');
+  var handleTabChange = function handleTabChange(key) {
+    _inertiajs_react__WEBPACK_IMPORTED_MODULE_1__.router.get('/quan-ly-qr', {
+      tab: key
+    }, {
+      preserveState: false,
+      replace: true
+    });
+  };
   var tabItems = [{
     key: 'phong',
     label: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsxs)(antd__WEBPACK_IMPORTED_MODULE_14__["default"], {
-      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsx)(_ant_design_icons__WEBPACK_IMPORTED_MODULE_22__["default"], {}), "Ph\xF2ng (", (_phongs$length = phongs === null || phongs === void 0 ? void 0 : phongs.length) !== null && _phongs$length !== void 0 ? _phongs$length : 0, ")"]
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsx)(_ant_design_icons__WEBPACK_IMPORTED_MODULE_22__["default"], {}), "Ph\xF2ng (", (_phongs$total = phongs === null || phongs === void 0 ? void 0 : phongs.total) !== null && _phongs$total !== void 0 ? _phongs$total : 0, ")"]
     }),
     children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsx)(TabPhong, {
-      phongs: phongs !== null && phongs !== void 0 ? phongs : [],
-      baseUrl: baseUrl,
-      perm: perm,
-      coSos: coSos,
-      khuNhas: khuNhas
-    })
-  }, {
-    key: 'thiet-bi',
-    label: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsxs)(antd__WEBPACK_IMPORTED_MODULE_14__["default"], {
-      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsx)(_ant_design_icons__WEBPACK_IMPORTED_MODULE_27__["default"], {}), "Thi\u1EBFt b\u1ECB (", (_thietBis$length = thietBis === null || thietBis === void 0 ? void 0 : thietBis.length) !== null && _thietBis$length !== void 0 ? _thietBis$length : 0, ")"]
-    }),
-    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsx)(TabThietBi, {
-      thietBis: thietBis !== null && thietBis !== void 0 ? thietBis : [],
+      phongs: phongs !== null && phongs !== void 0 ? phongs : {
+        data: []
+      },
       baseUrl: baseUrl,
       perm: perm,
       coSos: coSos,
       khuNhas: khuNhas,
-      phongsList: phongsList
+      filters: activeTab === 'phong' ? filters : {}
+    })
+  }, {
+    key: 'thiet-bi',
+    label: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsxs)(antd__WEBPACK_IMPORTED_MODULE_14__["default"], {
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsx)(_ant_design_icons__WEBPACK_IMPORTED_MODULE_27__["default"], {}), "Thi\u1EBFt b\u1ECB (", (_thietBis$total = thietBis === null || thietBis === void 0 ? void 0 : thietBis.total) !== null && _thietBis$total !== void 0 ? _thietBis$total : 0, ")"]
+    }),
+    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsx)(TabThietBi, {
+      thietBis: thietBis !== null && thietBis !== void 0 ? thietBis : {
+        data: []
+      },
+      baseUrl: baseUrl,
+      perm: perm,
+      coSos: coSos,
+      khuNhas: khuNhas,
+      phongsList: phongsList,
+      filters: activeTab === 'thiet-bi' ? filters : {}
     })
   }];
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsxs)(_Layout_MainLayout__WEBPACK_IMPORTED_MODULE_3__["default"], {
@@ -230800,7 +230909,8 @@ var QuanLyQrIndex = function QuanLyQrIndex(_ref5) {
         })
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsx)(antd__WEBPACK_IMPORTED_MODULE_7__["default"], {
         children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_28__.jsx)(antd__WEBPACK_IMPORTED_MODULE_16__["default"], {
-          defaultActiveKey: "phong",
+          activeKey: activeTab,
+          onChange: handleTabChange,
           items: tabItems,
           size: "large"
         })

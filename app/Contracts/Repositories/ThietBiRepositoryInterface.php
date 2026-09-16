@@ -127,11 +127,13 @@ interface ThietBiRepositoryInterface
     public function getKhoStats(): array;
 
     /**
-     * Lấy danh sách thiết bị cho quản lý QR (kèm phòng, khu nhà, cơ sở)
+     * Lấy danh sách thiết bị cho quản lý QR có phân trang và filter (kèm phòng, khu nhà, cơ sở)
      *
-     * @return Collection
+     * @param array $filters
+     * @param int $perPage
+     * @return LengthAwarePaginator
      */
-    public function getForQrManagement(): Collection;
+    public function paginateForQr(array $filters = [], int $perPage = 10): LengthAwarePaginator;
 
     /**
      * Tạo lại QR token cho thiết bị
