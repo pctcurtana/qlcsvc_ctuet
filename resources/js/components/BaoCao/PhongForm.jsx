@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { usePage, router, Head } from '@inertiajs/react';
+import { LoginBtn } from '../Common/LoginBtn';
 import {
     Form, Input, Select, Button, Card, Typography, Alert, Radio,
     Space, Tag, Divider, Result,
@@ -52,10 +53,10 @@ const PhongForm = ({ phong, token }) => {
         return (
             <>
                 <Head title="Báo cáo đã được ghi nhận" />
-                <div style={styles.wrapper}>
-                    <div style={styles.container}>
-                        <div style={{ display: 'flex', justifyContent: 'center' }}>
-                            <img src="/images/logoctuet.png" alt="Logo" style={styles.logo} />
+                <div className="min-h-screen bg-gradient-to-br from-[#e8f0fe] to-[#f0f5ff] py-5 px-4 flex justify-center items-start">
+                    <div className="w-full max-w-[520px] flex flex-col gap-4">
+                        <div className="flex justify-center">
+                            <img src="/images/logoctuet.png" alt="Logo" className="w-[72px] h-[72px]" />
                         </div>
                         <Result
                             icon={<CheckCircleOutlined style={{ color: '#52c41a', fontSize: 72 }} />}
@@ -80,11 +81,11 @@ const PhongForm = ({ phong, token }) => {
     return (
         <>
             <Head title={`Báo cáo sự cố — ${phong?.ten_phong || 'Phòng'}`} />
-            <div style={styles.wrapper}>
-                <div style={styles.container}>
+            <div className="min-h-screen bg-gradient-to-br from-[#e8f0fe] to-[#f0f5ff] py-5 px-4 flex justify-center items-start">
+                <div className="w-full max-w-[520px] flex flex-col gap-4">
                     {/* Header */}
-                    <div style={styles.header}>
-                        <img src="/images/logoctuet.png" alt="Logo" style={styles.logo} />
+                    <div className="text-center flex flex-col items-center gap-1.5 pb-2">
+                        <img src="/images/logoctuet.png" alt="Logo" className="w-[72px] h-[72px]" />
                         <Title level={4} style={{ margin: 0, color: '#244380' }}>
                             Báo cáo Sự cố Thiết bị
                         </Title>
@@ -94,7 +95,7 @@ const PhongForm = ({ phong, token }) => {
                     </div>
 
                     {/* Room info */}
-                    <Card style={styles.roomCard} bodyStyle={{ padding: '12px 16px' }}>
+                    <Card style={{ borderRadius: 12, background: '#f0f5ff', border: '1.5px solid #adc6ff' }} bodyStyle={{ padding: '12px 16px' }}>
                         <Space direction="vertical" size={2} style={{ width: '100%' }}>
                             <Space>
                                 <HomeOutlined style={{ color: '#244380' }} />
@@ -125,7 +126,7 @@ const PhongForm = ({ phong, token }) => {
                     )}
 
                     {/* Form */}
-                    <Card style={styles.formCard}>
+                    <Card style={{ borderRadius: 16, boxShadow: '0 4px 24px rgba(36,67,128,0.10)' }}>
                         <Form
                             form={form}
                             layout="vertical"
@@ -134,19 +135,19 @@ const PhongForm = ({ phong, token }) => {
                             initialValues={{ muc_do: 'trung_binh' }}
                         >
                             {/* Honeypot */}
-                            <Form.Item name="website" style={{ display: 'none' }}>
+                            <Form.Item name="website" className="hidden">
                                 <Input tabIndex={-1} autoComplete="off" />
                             </Form.Item>
 
                             <Form.Item
-                                label={<Text strong>Họ tên người báo cáo <span style={{ color: 'red' }}>*</span></Text>}
+                                label={<Text strong>Họ tên người báo cáo <span className="text-red-500">*</span></Text>}
                                 name="ten_nguoi_bao"
                                 rules={[{ required: true, message: 'Vui lòng nhập tên' }]}
                             >
                                 <Input
                                     prefix={<UserOutlined />}
                                     placeholder="Nguyễn Văn A (Đại diện)"
-                                    style={styles.input}
+                                    style={{ borderRadius: 10, fontSize: 16 }}
                                 />
                             </Form.Item>
 
@@ -157,7 +158,7 @@ const PhongForm = ({ phong, token }) => {
                                 <Input
                                     prefix={<PhoneOutlined />}
                                     placeholder="0912 345 678 (không bắt buộc)"
-                                    style={styles.input}
+                                    style={{ borderRadius: 10, fontSize: 16 }}
                                 />
                             </Form.Item>
 
@@ -170,7 +171,7 @@ const PhongForm = ({ phong, token }) => {
                                     allowClear
                                     showSearch
                                     optionFilterProp="label"
-                                    style={styles.input}
+                                    style={{ borderRadius: 10, fontSize: 16 }}
                                     options={[
                                         {
                                             value: null,
@@ -185,7 +186,7 @@ const PhongForm = ({ phong, token }) => {
                             </Form.Item>
 
                             <Form.Item
-                                label={<Text strong>Mô tả sự cố <span style={{ color: 'red' }}>*</span></Text>}
+                                label={<Text strong>Mô tả sự cố <span className="text-red-500">*</span></Text>}
                                 name="mo_ta_su_co"
                                 rules={[
                                     { required: true, message: 'Vui lòng mô tả sự cố' },
@@ -202,15 +203,15 @@ const PhongForm = ({ phong, token }) => {
                             </Form.Item>
 
                             <Form.Item
-                                label={<Text strong>Mức độ nghiêm trọng <span style={{ color: 'red' }}>*</span></Text>}
+                                label={<Text strong>Mức độ nghiêm trọng <span className="text-red-500">*</span></Text>}
                                 name="muc_do"
                                 rules={[{ required: true, message: 'Vui lòng chọn mức độ' }]}
                             >
-                                <Radio.Group style={{ width: '100%' }}>
-                                    <Space direction="vertical" style={{ width: '100%' }}>
+                                <Radio.Group className="w-full">
+                                    <Space direction="vertical" className="w-full">
                                         {MUC_DO_OPTIONS.map(opt => (
                                             <Radio key={opt.value} value={opt.value}
-                                                style={{ padding: '8px 12px', border: '1px solid #e8e8e8', borderRadius: 8, width: '100%' }}>
+                                                className="w-full !py-2 !px-3 border border-solid border-[#e8e8e8] !rounded-lg">
                                                 <Space>
                                                     <Tag color={opt.color} style={{ minWidth: 80, textAlign: 'center' }}>
                                                         {opt.label}
@@ -225,14 +226,13 @@ const PhongForm = ({ phong, token }) => {
 
                             <Divider />
 
-                            <Form.Item style={{ marginBottom: 0 }}>
+                            <Form.Item className="!mb-0">
                                 <Button
                                     type="primary"
                                     htmlType="submit"
                                     block
                                     loading={submitting}
                                     icon={<AlertOutlined />}
-                                    style={styles.submitBtn}
                                 >
                                     Gửi báo cáo
                                 </Button>
@@ -240,7 +240,7 @@ const PhongForm = ({ phong, token }) => {
                         </Form>
                     </Card>
 
-                    <div style={styles.footer}>
+                    <div className="text-center pb-5">
                         <Text type="secondary" style={{ fontSize: 12 }}>
                             © Trường ĐH Kỹ thuật Công nghệ Cần Thơ — Hệ thống Quản lý CSVC
                         </Text>
@@ -249,62 +249,6 @@ const PhongForm = ({ phong, token }) => {
             </div>
         </>
     );
-};
-
-const styles = {
-    wrapper: {
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #e8f0fe 0%, #f0f5ff 100%)',
-        padding: '20px 16px',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-    },
-    container: {
-        width: '100%',
-        maxWidth: 520,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 16,
-    },
-    header: {
-        textAlign: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 6,
-        paddingBottom: 8,
-    },
-    logo: {
-        width: 72,
-        height: 72,
-    },
-    roomCard: {
-        borderRadius: 12,
-        background: '#f0f5ff',
-        border: '1.5px solid #adc6ff',
-    },
-    formCard: {
-        borderRadius: 16,
-        boxShadow: '0 4px 24px rgba(36,67,128,0.10)',
-    },
-    input: {
-        borderRadius: 10,
-        fontSize: 16,
-    },
-    submitBtn: {
-        height: 52,
-        borderRadius: 10,
-        fontSize: 16,
-        fontWeight: 600,
-        background: 'linear-gradient(135deg, #244380 0%, #3d6cb8 100%)',
-        border: 'none',
-        boxShadow: '0 4px 16px rgba(36, 67, 128, 0.35)',
-    },
-    footer: {
-        textAlign: 'center',
-        paddingBottom: 20,
-    },
 };
 
 export default PhongForm;
