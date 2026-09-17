@@ -228,8 +228,8 @@
 
 .initial-loader-glass {
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   padding: 40px;
@@ -339,8 +339,8 @@
 /* Sider Glassmorphism */
 .custom-sidebar {
   background: rgba(255, 255, 255, 0.25) !important;
-  backdrop-filter: blur(24px) saturate(185%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(185%) !important;
+  backdrop-filter: blur(12px) saturate(185%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(185%) !important;
   border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
   box-shadow: 4px 0 24px rgba(36, 67, 128, 0.03) !important;
 }
@@ -353,8 +353,8 @@
 /* Card Glassmorphism */
 .ant-card {
   background: rgba(255, 255, 255, 0.35) !important;
-  backdrop-filter: blur(20px) saturate(190%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
+  backdrop-filter: blur(10px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(190%) !important;
   border: 1px solid rgba(255, 255, 255, 0.25) !important;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04) !important;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
@@ -401,8 +401,8 @@
 .ant-select-dropdown,
 .ant-popover-content {
   background: rgba(255, 255, 255, 0.75) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
   border: 1px solid rgba(255, 255, 255, 0.3) !important;
   border-radius: 14px !important;
   box-shadow: 0 12px 48px rgba(31, 38, 135, 0.08) !important;
@@ -418,8 +418,8 @@
 }
 
 .ant-modal-mask {
-  backdrop-filter: blur(10px) saturate(140%) !important;
-  -webkit-backdrop-filter: blur(10px) saturate(140%) !important;
+  backdrop-filter: blur(8px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
 
   background: rgba(15, 23, 42, 0.18) !important;
 }
@@ -463,11 +463,9 @@
 .ant-table-cell-fix-right,
 .ant-table-cell-fix-right-first,
 .ant-table-cell-fix-right-last {
-  background: rgba(255, 255, 255, 0.55) !important;
-
-  backdrop-filter: blur(28px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
-
+  background: rgba(248, 250, 252, 0.98) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   border-left: 1px solid rgba(255, 255, 255, 0.3) !important;
 }
 
@@ -550,8 +548,8 @@ textarea,
 .ant-message-notice-content {
   background: rgba(255, 255, 255, 0.08) !important;
 
-  backdrop-filter: blur(40px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
 
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
 
@@ -660,4 +658,16 @@ textarea,
   .custom-sidebar {
     background: #f8fafd !important;
   }
+
+  .initial-loader-glass,
+  .ant-modal-mask {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .ant-modal-mask {
+    background: rgba(15, 23, 42, 0.35) !important;
+    /* bù lại độ tối vì mất blur */
+  }
+
 }

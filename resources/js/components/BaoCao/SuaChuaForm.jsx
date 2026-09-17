@@ -347,12 +347,6 @@ const SuaChuaForm = ({ thietBi, soLanSuaChua, token, lichSuDangSuaChua, coPhienD
                                     block
                                     loading={submitting}
                                     icon={<CheckCircleOutlined />}
-                                // style={{
-                                //     height: 50, borderRadius: 10, fontSize: 16,
-                                //     fontWeight: 600,
-                                //     background: 'linear-gradient(135deg, #244380 0%, #3d6cb8 100%)',
-                                //     border: 'none',
-                                // }}
                                 >
                                     Lưu thông tin sửa chữa
                                 </Button>
