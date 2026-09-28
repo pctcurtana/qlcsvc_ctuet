@@ -178,7 +178,7 @@ const Index = ({ thietBis, phongs, coSos, filters }) => {
             title: 'Mã phòng',
             dataIndex: ['phong', 'ma_phong'],
             key: 'ma_phong',
-            width: 120,
+            width: 110,
             ellipsis: true,
             render: (text) => text || <Tag>Chưa phân bổ</Tag>,
         },
