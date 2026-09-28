@@ -11,7 +11,7 @@ import AiInsightButton from './Common/AiInsightButton';
 import {
     PieChart, Pie, Cell, RadialBar, RadialBarChart, Legend,
     BarChart, Bar, XAxis, YAxis, CartesianGrid,
-    Tooltip, ResponsiveContainer, LabelList,
+    Tooltip, ResponsiveContainer, LabelList, ComposedChart, Line,
 } from 'recharts';
 
 const { Title, Text } = Typography;
@@ -34,41 +34,7 @@ const DONUT_COLORS = [
     },
 ];
 
-const tooltipStyle = {
-    contentStyle: {
-        background: 'rgba(255,255,255,0.75)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255,255,255,0.35)',
-        borderRadius: 16,
-        boxShadow: `
-            0 10px 30px rgba(15,23,42,.08),
-            0 2px 8px rgba(15,23,42,.04)
-        `,
-        padding: '10px 14px',
-        fontSize: 12,
-        fontWeight: 600,
-        color: '#0f172a',
-        fontFamily: "'Plus Jakarta Sans', sans-serif",
-    },
 
-    labelStyle: {
-        color: '#64748b',
-        fontSize: 11,
-        fontWeight: 700,
-        marginBottom: 4,
-        textTransform: 'uppercase',
-        letterSpacing: '.06em',
-    },
-
-    itemStyle: {
-        color: '#0f172a',
-        fontSize: 12,
-        fontWeight: 700,
-    },
-
-    cursor: false,
-};
 
 const useCountUp = (target, duration = 1200) => {
     const [value, setValue] = useState(0);
@@ -208,11 +174,27 @@ const DonutChart = ({ data }) => {
                         </Pie>
 
                         <Tooltip
-                            {...tooltipStyle}
                             offset={100}
-                            formatter={(v) => [
-                                `${fmt(v)} phòng (${total ? ((v / total) * 100).toFixed(1) : 0}%)`
-                            ]}
+                            content={({ active, payload }) => {
+                                if (active && payload && payload.length) {
+                                    const item = payload[0].payload;
+                                    const colorIndex = data.findIndex(d => d.name === item.name);
+                                    return (
+                                        <div className="bg-white border border-slate-200 rounded-xl shadow-lg p-4 min-w-[160px]">
+                                            <div className="flex items-center justify-between gap-3 mb-2">
+                                                <span className="font-semibold text-slate-800">{item.name}</span>
+                                            </div>
+                                            <div className="space-y-1 text-sm">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-2.5 h-2.5 rounded-full" style={{ background: DONUT_COLORS[colorIndex]?.solid || '#94a3b8' }} />
+                                                    <span className="text-slate-600">Số lượng: <strong>{fmt(item.value)}</strong> phòng</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                }
+                                return null;
+                            }}
                         />
                     </PieChart>
                 </ResponsiveContainer>
@@ -366,7 +348,6 @@ const Dashboard = ({ statistics: initStats, thongKeLoaiPhong: initLoaiPhong, tho
     return (
         <MainLayout>
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
-
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Title level={2} style={{ margin: 0 }}>
                         <AreaChartOutlined style={{ marginRight: 10, color: '#4096ff' }} />
@@ -413,87 +394,114 @@ const Dashboard = ({ statistics: initStats, thongKeLoaiPhong: initLoaiPhong, tho
                                 />
                             }
                         >
-                            <ResponsiveContainer width="100%" height={260}>
-                                <BarChart data={loaiPhongData} margin={{ top: 16, right: 12, left: -10, bottom: 6 }}>
-                                    <defs>
-                                        <linearGradient id="roomGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#6ea8ff" />
-                                            <stop offset="55%" stopColor="#4f8cff" />
-                                            <stop offset="100%" stopColor="#244380" />
-                                        </linearGradient>
-                                        <filter id="roomGlow">
-                                            <feDropShadow dx="0" dy="6" stdDeviation="8" floodColor="#4f8cff" floodOpacity="0.15" />
-                                        </filter>
-                                    </defs>
-                                    <CartesianGrid vertical={false} stroke="rgba(148,163,184,.20)" />
-                                    <XAxis
-                                        dataKey="name"
-                                        axisLine={false}
-                                        tickLine={false}
-                                        tick={{ fill: "#64748b", fontSize: 12, fontWeight: 600 }}
-
-                                    />
-                                    <YAxis
-                                        width={40}
-                                        axisLine={false}
-                                        tickLine={false}
-                                        tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 500 }}
-
-                                    />
-                                    <Tooltip {...tooltipStyle} formatter={(v) => [`${fmt(v)} phòng`, "Số lượng"]} />
-                                    <Bar
-                                        dataKey="soLuong"
-                                        radius={[8, 8, 2, 2]}
-                                        maxBarSize={38}
-                                        filter="url(#roomGlow)"
-                                        animationDuration={1200}
-                                        animationBegin={100}
-                                        animationEasing="ease-out"
+                            <div onMouseLeave={() => setActiveBar(null)}>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <ComposedChart
+                                        data={loaiPhongData.map(item => {
+                                            const total = loaiPhongData.reduce((s, i) => s + i.soLuong, 0);
+                                            return {
+                                                ...item,
+                                                percentage: total > 0 ? Number(((item.soLuong / total) * 100).toFixed(1)) : 0
+                                            };
+                                        })}
+                                        margin={{ top: 20, right: 20, left: 0, bottom: 10 }}
+                                        onMouseMove={(state) => {
+                                            const i = state?.isTooltipActive ? Number(state.activeTooltipIndex) : null;
+                                            setActiveBar(Number.isNaN(i) ? null : i);
+                                        }}
+                                        onMouseLeave={() => setActiveBar(null)}
                                     >
-                                        {loaiPhongData.map((entry, index) => (
-                                            <Cell
-                                                key={index}
-                                                fill={activeBar === null ? "#7EA6FF" : activeBar === index ? "#4F8CFF" : "#DCE7FF"}
-                                                style={{
-                                                    filter: activeBar === index ? "drop-shadow(0 8px 18px rgba(79,140,255,.22))" : "none",
-                                                    opacity: activeBar === null ? 1 : activeBar === index ? 1 : 0.55,
-                                                    transition: "fill .25s, fill-opacity .25s",
-                                                }}
-                                                onMouseEnter={() => setActiveBar(index)}
-                                                onMouseLeave={() => setActiveBar(null)}
-                                            />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-
-                            {/* Stats Row */}
-                            <div className="pt-2 border-t border-slate-200/60 grid grid-cols-5">
-                                {loaiPhongData.map((item, index) => {
-                                    const total = loaiPhongData.reduce((s, i) => s + i.soLuong, 0);
-                                    return (
-                                        <div
-                                            key={item.name}
-                                            onMouseEnter={() => setActiveBar(index)}
-                                            onMouseLeave={() => setActiveBar(null)}
-                                            className={`relative px-4 py-1 cursor-pointer transition-all duration-500 ease-in-out
-                                                ${activeBar === index ? "bg-slate-300" : ""}
-                                                ${index !== loaiPhongData.length - 1 ? " border-r border-slate-200" : ""}`}
-                                            style={{ opacity: activeBar === null ? 1 : activeBar === index ? 1 : 0.35, }}>
-                                            <div className="flex items-center justify-center gap-2">
-                                                <span
-                                                    className={`text-base font-black ${activeBar === index ? "text-[#244380]" : "text-slate-800"}`}>
-                                                    {item.soLuong}
-                                                </span>
-                                                <span className="h-1 w-1 rounded-full bg-slate-300" />
-                                                <span
-                                                    className={`text-[11px] uppercase tracking-[0.1em] font-semibold ${activeBar === index ? "text-[#244380]" : "text-slate-400"}`}>
-                                                    {item.name}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                                        <CartesianGrid
+                                            strokeDasharray="3 3"
+                                            horizontal={false}
+                                            vertical={true}
+                                            stroke="#cbd5e1"
+                                        />
+                                        <XAxis
+                                            dataKey="name"
+                                            axisLine={{ stroke: "#cbd5e1" }}
+                                            tickLine={false}
+                                            tick={{ fill: "#64748b", fontSize: 12, fontWeight: 500 }}
+                                            dy={8}
+                                        />
+                                        <YAxis
+                                            yAxisId="left"
+                                            axisLine={{ stroke: "#cbd5e1" }}
+                                            tickLine={{ stroke: "#cbd5e1" }}
+                                            tick={{ fill: "#94a3b8", fontSize: 12 }}
+                                            width={36}
+                                            allowDecimals={false}
+                                        />
+                                        <YAxis
+                                            yAxisId="right"
+                                            orientation="right"
+                                            axisLine={{ stroke: "#cbd5e1" }}
+                                            tickLine={{ stroke: "#cbd5e1" }}
+                                            tick={{ fill: "#94a3b8", fontSize: 12 }}
+                                            width={40}
+                                            unit="%"
+                                        />
+                                        <Tooltip
+                                            content={({ active, payload, label }) => {
+                                                if (active && payload && payload.length) {
+                                                    const data = payload[0].payload;
+                                                    return (
+                                                        <div className="bg-white border border-slate-200 rounded-xl shadow-lg p-4 min-w-[160px]">
+                                                            <div className="flex items-center justify-between gap-3 mb-2">
+                                                                <span className="font-semibold text-slate-800">{label}</span>
+                                                            </div>
+                                                            <div className="space-y-1 text-sm">
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="w-2.5 h-2.5 rounded-sm bg-[#497CE9]" />
+                                                                    <span className="text-slate-600">Số lượng: <strong>{data.soLuong}</strong></span>
+                                                                </div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="w-2.5 h-2.5 rounded-full bg-[#3FB68B]" />
+                                                                    <span className="text-slate-600">Tỷ lệ: <strong>{data.percentage}%</strong></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                }
+                                                return null;
+                                            }}
+                                        />
+                                        <Legend
+                                            verticalAlign="bottom"
+                                            height={36}
+                                            iconType="circle"
+                                            wrapperStyle={{ paddingTop: 12 }}
+                                        />
+                                        <Bar
+                                            yAxisId="left"
+                                            dataKey="soLuong"
+                                            name="Số lượng"
+                                            fill="#648FED"
+                                            radius={[6, 6, 0, 0]}
+                                            maxBarSize={28}
+                                            isAnimationActive={false}
+                                        >
+                                            {loaiPhongData.map((_, index) => (
+                                                <Cell
+                                                    key={`cell-${index}`}
+                                                    fill={activeBar === index ? "#497CE9" : "#648FED"}
+                                                    opacity={activeBar === null || activeBar === index ? 1 : 0.55}
+                                                />
+                                            ))}
+                                        </Bar>
+                                        <Line
+                                            yAxisId="right"
+                                            type="monotone"
+                                            dataKey="percentage"
+                                            name="Tỷ lệ (%)"
+                                            stroke="#3FB68B"
+                                            strokeWidth={2.5}
+                                            dot={{ r: 4, fill: "#3FB68B", strokeWidth: 2, stroke: "#fff" }}
+                                            activeDot={{ r: 6 }}
+                                            isAnimationActive={false}
+                                        />
+                                    </ComposedChart>
+                                </ResponsiveContainer>
                             </div>
                         </ChartCard>
                     </Col>
@@ -531,7 +539,7 @@ const Dashboard = ({ statistics: initStats, thongKeLoaiPhong: initLoaiPhong, tho
                                 />
                             }
                         >
-                            <ResponsiveContainer width="100%" height={240}>
+                            <ResponsiveContainer width="100%" height={245}>
                                 <RadialBarChart
                                     cx="50%"
                                     cy="50%"
@@ -551,9 +559,27 @@ const Dashboard = ({ statistics: initStats, thongKeLoaiPhong: initLoaiPhong, tho
                                 >
                                     <RadialBar background clockWise dataKey="soKhuNha" cornerRadius={12} label={false} />
                                     <Tooltip
-                                        {...tooltipStyle}
-                                        formatter={(value) => [`${fmt(value)} toà nhà`, "Số lượng"]}
-                                        labelFormatter={(_, payload) => payload?.[0]?.payload?.name || ""}
+                                        content={({ active, payload }) => {
+                                            if (active && payload && payload.length) {
+                                                const item = payload[0].payload;
+                                                const colors = ["#244380", "#10B981", "#F59E0B", "#8B5CF6", "#EF4444"];
+                                                const colorIndex = coSoData.findIndex(d => d.name === item.name);
+                                                return (
+                                                    <div className="bg-white border border-slate-200 rounded-xl shadow-lg p-4 min-w-[160px]">
+                                                        <div className="flex items-center justify-between gap-3 mb-2">
+                                                            <span className="font-semibold text-slate-800">{item.name}</span>
+                                                        </div>
+                                                        <div className="space-y-1 text-sm">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-2.5 h-2.5 rounded-full" style={{ background: colors[colorIndex % 5] }} />
+                                                                <span className="text-slate-600">Số toà nhà: <strong>{fmt(item.soKhuNha)}</strong></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            }
+                                            return null;
+                                        }}
                                     />
                                 </RadialBarChart>
                             </ResponsiveContainer>
@@ -604,75 +630,93 @@ const Dashboard = ({ statistics: initStats, thongKeLoaiPhong: initLoaiPhong, tho
                                 />
                             }
                         >
-                            <ResponsiveContainer width="100%" height={300}>
-                                <BarChart
-                                    data={loaiThietBiData}
-                                    layout="vertical"
-                                    margin={{ top: 12, right: 20, left: 12, bottom: 12, }}
-                                >
-                                    <defs>
-                                        <filter id="deviceGlow">
-                                            <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#4f8cff" floodOpacity="0.18" />
-                                        </filter>
-                                    </defs>
-                                    <CartesianGrid horizontal={false} stroke="rgba(148,163,184,.15)" />
-                                    <XAxis type="number" allowDecimals={false} axisLine={false} tickLine={false}
-                                        tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 500, }}
-                                    />
-                                    <YAxis type="category" dataKey="name" width={80} axisLine={false} tickLine={false}
-                                        tick={({ x, y, payload, index }) => (
-                                            <text
-                                                x={x} y={y} dy={4} textAnchor="end"
-                                                fill={activeDeviceBar === index ? "#10B981" : "#64748b"}
-                                                fontSize="12"
-                                                fontWeight={activeDeviceBar === index ? 800 : 600}
-                                            >
-                                                {payload.value}
-                                            </text>
-                                        )}
-                                    />
-                                    <Tooltip {...tooltipStyle} cursor={false} formatter={(v) => [`${fmt(v)} thiết bị`, "Số lượng"]} />
-                                    <Bar
-                                        dataKey="soLuong"
-                                        radius={[2, 8, 8, 2]}
-                                        maxBarSize={26}
-                                        isAnimationActive={false}
+                            <div onMouseLeave={() => setActiveDeviceBar(null)}>
+                                <ResponsiveContainer width="100%" height={320}>
+                                    <BarChart
+                                        data={loaiThietBiData}
+                                        layout="vertical"
+                                        margin={{ top: 10, right: 50, left: 10, bottom: 10 }}
+                                        barCategoryGap="28%"
+                                        onMouseMove={(state) => {
+                                            const i = state?.isTooltipActive ? Number(state.activeTooltipIndex) : null;
+                                            setActiveDeviceBar(Number.isNaN(i) ? null : i);
+                                        }}
+                                        onMouseLeave={() => setActiveDeviceBar(null)}
                                     >
-                                        <LabelList
-                                            content={({ x, y, width, height, value }) => (
-                                                <text
-                                                    x={Number(x) + Number(width) + 12}
-                                                    y={Number(y) + Number(height) / 2}
-                                                    dominantBaseline="middle"
-                                                    fill="#64748b"
-                                                    fontSize="11"
-                                                    fontWeight="700"
-                                                >
-                                                    {value}
-                                                </text>
-                                            )}
+                                        <CartesianGrid
+                                            horizontal={false}
+                                            stroke="#cbd5e1"
+                                            strokeDasharray="3 3"
+
                                         />
-                                        {loaiThietBiData.map((item, index) => (
-                                            <Cell
-                                                key={index}
-                                                fill={activeDeviceBar === null ? "#7DD3C7" : activeDeviceBar === index ? "#34D399" : "#D1FAE5"}
+                                        <XAxis
+                                            type="number"
+                                            axisLine={{ stroke: "#cbd5e1" }}
+                                            tickLine={{ stroke: "#cbd5e1" }}
+                                            tick={{ fill: "#94a3b8", fontSize: 12 }}
+                                            allowDecimals={false}
+                                        />
+                                        <YAxis
+                                            type="category"
+                                            dataKey="name"
+                                            axisLine={{ stroke: "#cbd5e1" }}
+                                            tickLine={{ stroke: "#cbd5e1" }}
+                                            width={90}
+                                            tick={{ fill: "#475569", fontSize: 13, fontWeight: 500 }}
+                                        />
+                                        <Tooltip
+                                            cursor={false}
+                                            content={({ active, payload, label }) => {
+                                                if (active && payload && payload.length) {
+                                                    const data = payload[0].payload;
+                                                    return (
+                                                        <div className="bg-white border border-slate-200 rounded-xl shadow-lg p-4 min-w-[160px]">
+                                                            <div className="flex items-center justify-between gap-3 mb-2">
+                                                                <span className="font-semibold text-slate-800">{label}</span>
+                                                            </div>
+                                                            <div className="space-y-1 text-sm">
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="w-2.5 h-2.5 rounded-sm bg-[#5DBB9A]" />
+                                                                    <span className="text-slate-600">Số lượng: <strong>{fmt(data.soLuong)}</strong></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                }
+                                                return null;
+                                            }}
+                                        />
+                                        <Bar
+                                            dataKey="soLuong"
+                                            radius={[0, 4, 4, 0]}
+                                            maxBarSize={22}
+                                            isAnimationActive={false}
+                                        >
+                                            {loaiThietBiData.map((_, index) => (
+                                                <Cell
+                                                    key={`cell-${index}`}
+                                                    fill={activeDeviceBar === index ? "#40A17F" : "#5DBB9A"}
+                                                    opacity={activeDeviceBar === null || activeDeviceBar === index ? 1 : 0.55}
+                                                    style={{
+                                                        transition: "fill 0.25s ease, opacity 0.2s ease ",
+                                                        opacity: activeDeviceBar === null || activeDeviceBar === index ? 1 : 0.45,
+                                                    }}
+                                                />
+                                            ))}
+                                            <LabelList
+                                                dataKey="soLuong"
+                                                position="right"
+                                                offset={10}
                                                 style={{
-                                                    opacity: activeDeviceBar === null ? 1 : activeDeviceBar === index ? 1 : 0.35,
-                                                    transition: "all .3s ease",
+                                                    fill: "#334155",
+                                                    fontSize: 13,
+                                                    fontWeight: 600,
                                                 }}
-                                                onMouseEnter={() => setActiveDeviceBar(index)}
-                                                onMouseLeave={() => setActiveDeviceBar(null)}
+                                                formatter={(value) => fmt(value)}
                                             />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                            <div className="h-4 text-center">
-                                {activeDeviceBar !== null && (
-                                    <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#244380]">
-                                        {loaiThietBiData[activeDeviceBar].name}
-                                    </span>
-                                )}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
                             </div>
                         </ChartCard>
                     </Col>
