@@ -16,8 +16,6 @@ class DotKiemTraThietBi extends Model
         'ngay_bat_dau',
         'ngay_ket_thuc',
         'mo_ta',
-        'is_active',
-        'nguoi_tao_id',
     ];
 
     protected $casts = [

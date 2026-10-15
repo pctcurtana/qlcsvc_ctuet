@@ -51,12 +51,17 @@ class UserService
      */
     public function create(array $data): User
     {
-        return $this->userRepository->create([
+        $user = $this->userRepository->create([
             'name'     => $data['name'],
             'email'    => $data['email'],
             'password' => Hash::make($data['password']),
-            'role'     => $data['role'],
         ]);
+
+        // Set role explicitly (not via mass assignment for security)
+        $user->role = $data['role'] ?? 'user';
+        $user->save();
+
+        return $user;
     }
 
     /**
@@ -87,16 +92,19 @@ class UserService
             'email' => $data['email'],
         ];
 
-        // Chỉ cập nhật role nếu không phải chính mình
-        if (!$isSelf) {
-            $updateData['role'] = $data['role'];
-        }
-
         if (!empty($data['password'])) {
             $updateData['password'] = Hash::make($data['password']);
         }
 
-        return $this->userRepository->update($id, $updateData);
+        $user = $this->userRepository->update($id, $updateData);
+
+        // Chỉ cập nhật role nếu không phải chính mình, gán trực tiếp (không qua mass assignment)
+        if (!$isSelf) {
+            $user->role = $data['role'];
+            $user->save();
+        }
+
+        return $user;
     }
 
     /**

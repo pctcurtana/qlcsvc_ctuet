@@ -44,14 +44,23 @@ class DotKiemTraThietBiService
     public function create(array $data): DotKiemTraThietBi
     {
         return DB::transaction(function () use ($data) {
-            if (!empty($data['is_active'])) {
+            $shouldActivate = !empty($data['is_active']);
+
+            if ($shouldActivate) {
                 $this->repository->deactivateAll();
             }
 
-            return $this->repository->create(array_merge($data, [
-                'is_active'    => (bool) ($data['is_active'] ?? false),
-                'nguoi_tao_id' => auth()->id(),
-            ]));
+            // Remove sensitive fields from data before mass assignment
+            $fillableData = collect($data)->except(['is_active', 'nguoi_tao_id'])->toArray();
+
+            $dot = $this->repository->create($fillableData);
+
+            // Set sensitive fields explicitly (not via mass assignment)
+            $dot->is_active    = $shouldActivate;
+            $dot->nguoi_tao_id = auth()->id();
+            $dot->save();
+
+            return $dot;
         });
     }
 
@@ -62,7 +71,17 @@ class DotKiemTraThietBiService
     {
         return DB::transaction(function () use ($id) {
             $this->repository->deactivateAll();
-            return $this->repository->update($id, ['is_active' => true]);
+
+            $dot = $this->repository->find($id);
+            if (!$dot) {
+                throw new \Illuminate\Database\Eloquent\ModelNotFoundException('Không tìm thấy đợt kiểm tra');
+            }
+
+            // Set is_active explicitly (not via mass assignment)
+            $dot->is_active = true;
+            $dot->save();
+
+            return $dot;
         });
     }
 

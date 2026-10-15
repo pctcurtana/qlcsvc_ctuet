@@ -29,10 +29,9 @@ class BaoCaoBgdService
             $this->tongHopHaTangCntt($dotBaoCao);
 
             // Cập nhật ngày tổng hợp và trạng thái
-            $dotBaoCao->update([
-                'ngay_tong_hop' => now(),
-                'trang_thai' => 'completed',
-            ]);
+            $dotBaoCao->ngay_tong_hop = now();
+            $dotBaoCao->trang_thai = 'completed';
+            $dotBaoCao->save();
         });
     }
 

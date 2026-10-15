@@ -17,7 +17,15 @@ class ImportController extends Controller
     {
         Import::cleanupStaleImports();
 
-        $active = Import::whereIn('status', ['pending', 'processing'])->latest()->first();
+        $user = Auth::user();
+        $query = Import::whereIn('status', ['pending', 'processing']);
+
+        // Non-admin users can only see their own imports
+        if (!$user->isAdmin()) {
+            $query->where('user_id', $user->id);
+        }
+
+        $active = $query->latest()->first();
 
         return response()->json([
             'has_active'    => !is_null($active),

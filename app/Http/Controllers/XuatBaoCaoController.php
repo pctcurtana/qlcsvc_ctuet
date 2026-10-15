@@ -74,10 +74,12 @@ class XuatBaoCaoController extends Controller
             'mo_ta'   => 'nullable|string|max:1000',
         ]);
 
-        DotBaoCao::create(array_merge($validated, [
-            'nguoi_tao_id' => auth()->id(),
-            'trang_thai'   => 'draft',
-        ]));
+        $dotBaoCao = DotBaoCao::create($validated);
+
+        // Set sensitive fields explicitly (not via mass assignment)
+        $dotBaoCao->nguoi_tao_id = auth()->id();
+        $dotBaoCao->trang_thai   = 'draft';
+        $dotBaoCao->save();
 
         return back()->with('success', 'Đã tạo đợt báo cáo mới!');
     }

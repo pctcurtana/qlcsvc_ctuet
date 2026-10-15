@@ -34,7 +34,7 @@ Route::post('/bao-cao/phong/{token}', [BaoCaoSuCoController::class, 'submitPhong
 // Auth Routes - Guest only
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 });
 
 // Logout - Auth only
@@ -169,8 +169,8 @@ Route::get('/thiet-bi/{thietBi}/lich-su-bao-duong', [LichSuBaoDuongController::c
     });
 
     // ==================== Thống kê chi tiết ====================
-    Route::get('/thong-ke/snapshots', [ThongKeController::class, 'getSnapshots'])->name('thong-ke.snapshots');
     Route::middleware('permission:thong-ke,can_view')->group(function () {
+        Route::get('/thong-ke/snapshots', [ThongKeController::class, 'getSnapshots'])->name('thong-ke.snapshots');
         Route::get('/thong-ke/chi-tiet-phong', [ThongKeController::class, 'chiTietPhong'])->name('thong-ke.chi-tiet-phong');
         Route::get('/thong-ke/chi-tiet-thiet-bi', [ThongKeController::class, 'chiTietThietBi'])->name('thong-ke.chi-tiet-thiet-bi');
         Route::get('/thong-ke', [ThongKeController::class, 'index'])->name('thong-ke.index');
@@ -242,7 +242,9 @@ Route::get('/thiet-bi/{thietBi}/lich-su-bao-duong', [LichSuBaoDuongController::c
     });
 
     // ==================== AI Insight ====================
-    Route::post('/ai/insight', [AiInsightController::class, 'generate'])->name('ai.insight');
+    Route::post('/ai/insight', [AiInsightController::class, 'generate'])
+        ->name('ai.insight')
+        ->middleware('throttle:5,1');
 
     // ==================== Import Kết quả & Chi tiết ====================
     Route::get('/imports/status', [\App\Http\Controllers\ImportController::class, 'status'])->name('imports.status');

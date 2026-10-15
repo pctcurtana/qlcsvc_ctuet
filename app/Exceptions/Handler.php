@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 use Illuminate\Support\Facades\Log;
@@ -136,6 +137,24 @@ class Handler extends ExceptionHandler
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString()
             ]);
+        });
+
+        // Handle ThrottleRequestsException (Rate Limit)
+        // Handle ThrottleRequestsException (Rate Limit)
+        $this->renderable(function (ThrottleRequestsException $e, $request) {
+            // Login
+            if ($request->is('login') || $request->routeIs('login')) {
+                return redirect()
+                    ->route('login')
+                    ->with('error', 'Bạn đã thử đăng nhập quá nhiều lần. Vui lòng thử lại sau.');
+            }
+
+            // AI insight
+            if ($request->is('ai/insight') || $request->routeIs('ai.insight')) {
+                return response()->json([
+                    'message' => 'Bạn thao tác quá nhanh. Vui lòng thử lại sau.',
+                ], 429);
+            }
         });
     }
 }

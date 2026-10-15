@@ -16,8 +16,6 @@ class DotBaoCao extends Model
         'nam_hoc',
         'mo_ta',
         'ngay_tong_hop',
-        'nguoi_tao_id',
-        'trang_thai',
     ];
 
     protected $casts = [
