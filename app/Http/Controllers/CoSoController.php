@@ -111,8 +111,11 @@ class CoSoController extends Controller
         try {
             $this->coSoService->delete($id);
             return redirect()->route('co-so.index')->with('success', 'Xóa cơ sở thành công!');
+        } catch (\App\Exceptions\ServiceException | \App\Exceptions\ResourceNotFoundException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi xóa cơ sở: ' . $e->getMessage());
+            report($e);
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi xóa cơ sở. Vui lòng thử lại.');
         }
     }
 

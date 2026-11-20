@@ -1,5 +1,5 @@
 import React from 'react';
-import { useForm, Link } from '@inertiajs/react';
+import { useForm, Link, usePage } from '@inertiajs/react';
 import MainLayout from '../Layout/MainLayout';
 import {
     Card,
@@ -16,6 +16,7 @@ const { Title } = Typography;
 const { Option } = Select;
 
 const UserCreate = () => {
+    const isAdmin = usePage().props.auth?.user?.role === 'admin';
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         email: '',
@@ -104,7 +105,7 @@ const UserCreate = () => {
                                 onChange={(value) => setData('role', value)}
                             >
                                 <Option value="user">Người dùng</Option>
-                                <Option value="admin">Quản trị viên</Option>
+                                {isAdmin && <Option value="admin">Quản trị viên</Option>}
                             </Select>
                         </Form.Item>
 

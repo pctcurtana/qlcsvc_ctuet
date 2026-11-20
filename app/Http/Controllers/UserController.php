@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ServiceException;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -62,7 +63,11 @@ class UserController extends Controller
             'role.required'      => 'Vui lòng chọn vai trò.',
         ]);
 
-        $this->userService->create($request->only(['name', 'email', 'password', 'role']));
+        try {
+            $this->userService->create($request->only(['name', 'email', 'password', 'role']), $request->user());
+        } catch (ServiceException $e) {
+            return back()->withInput($request->except(['password', 'password_confirmation']))->with('error', $e->getMessage());
+        }
 
         return redirect()->route('nguoi-dung.index')->with('success', 'Thêm người dùng thành công!');
     }
@@ -74,6 +79,12 @@ class UserController extends Controller
     {
         $nguoi_dung = $this->userService->getById($nguoi_dung);
         $isSelf = $nguoi_dung->id === auth()->id();
+
+        try {
+            $this->userService->kiemTraQuyenQuanLy(auth()->user(), $nguoi_dung);
+        } catch (ServiceException $e) {
+            return redirect()->route('nguoi-dung.index')->with('error', $e->getMessage());
+        }
 
         return Inertia::render('User/Edit', [
             'user'        => $nguoi_dung,
@@ -105,9 +116,9 @@ class UserController extends Controller
         ]);
 
         try {
-            $this->userService->update($nguoi_dung->id, $request->only(['name', 'email', 'password', 'role']), auth()->id());
+            $this->userService->update($nguoi_dung->id, $request->only(['name', 'email', 'password', 'role']), $request->user());
             return redirect()->route('nguoi-dung.index')->with('success', 'Cập nhật người dùng thành công!');
-        } catch (\RuntimeException $e) {
+        } catch (ServiceException $e) {
             return back()->with('error', $e->getMessage());
         }
     }
@@ -118,9 +129,9 @@ class UserController extends Controller
     public function destroy($nguoi_dung)
     {
         try {
-            $this->userService->delete($nguoi_dung, auth()->id());
+            $this->userService->delete($nguoi_dung, auth()->user());
             return redirect()->route('nguoi-dung.index')->with('success', 'Xóa người dùng thành công!');
-        } catch (\RuntimeException $e) {
+        } catch (ServiceException $e) {
             return back()->with('error', $e->getMessage());
         }
     }

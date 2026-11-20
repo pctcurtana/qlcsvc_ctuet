@@ -4,6 +4,9 @@ namespace App\Services;
 
 use App\Contracts\Repositories\ThietBiRepositoryInterface;
 use App\Contracts\Services\ThietBiServiceInterface;
+use App\Exceptions\ServiceException;
+use App\Models\BaoCaoSuCo;
+use App\Models\LichSuBaoDuong;
 use App\Models\ThietBi;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -107,9 +110,67 @@ class ThietBiService
      */
     public function delete(int $id): bool
     {
-        $result = $this->thietBiRepository->delete($id);
+        $thietBi = $this->getById($id);
+        KiemTraXoa::xoa($thietBi, "thiết bị \"{$thietBi->ma_thiet_bi}\"", [
+            ['báo cáo sự cố', DB::table('bao_cao_su_cos')->where('thiet_bi_id', $id), false],
+            ['lịch sử bảo dưỡng/sửa chữa', DB::table('lich_su_bao_duongs')->where('thiet_bi_id', $id), false],
+        ], 'Nếu thiết bị không còn dùng nữa, hãy dùng chức năng "Ngừng sử dụng".');
         app(ThongKeSnapshotService::class)->onEntityChanged('thiet_bi');
-        return $result;
+        return true;
+    }
+
+    /**
+     * Ngừng sử dụng: chuyển bản hiện hành sang lịch sử (hieu_luc_den = hiện tại),
+     * KHÔNG tạo phiên bản mới. Chặn nếu còn sự cố/sửa chữa chưa xong.
+     */
+    public function ngungSuDung(int $id): ThietBi
+    {
+        $thietBi = DB::transaction(function () use ($id) {
+            $thietBi = ThietBi::whereKey($id)->lockForUpdate()->first();
+            if (!$thietBi) {
+                throw new \Illuminate\Database\Eloquent\ModelNotFoundException('Không tìm thấy thiết bị');
+            }
+            if ($thietBi->trang_thai_du_lieu !== 'hien_hanh') {
+                throw new ServiceException('Thiết bị này đã ngừng sử dụng hoặc đã được thay bằng phiên bản mới.', 422);
+            }
+
+            $lyDo = [];
+            $soBaoCaoMo = BaoCaoSuCo::where('thiet_bi_id', $id)
+                ->whereIn('trang_thai', ['yeu_cau_sua_chua', 'dang_sua_chua'])
+                ->count();
+            if ($soBaoCaoMo > 0) {
+                $lyDo[] = "còn {$soBaoCaoMo} báo cáo sự cố chưa hoàn thành";
+            }
+            $soDangSua = LichSuBaoDuong::where('thiet_bi_id', $id)
+                ->where('trang_thai', 'dang_thuc_hien')
+                ->count();
+            if ($soDangSua > 0) {
+                $lyDo[] = "còn {$soDangSua} phiếu sửa chữa đang thực hiện";
+            }
+            if (!empty($lyDo)) {
+                throw new ServiceException(
+                    "Không thể ngừng sử dụng thiết bị \"{$thietBi->ma_thiet_bi}\": " . implode(', ', $lyDo) . '. Vui lòng xử lý xong trước.',
+                    422
+                );
+            }
+
+            $this->luuTruBanHienHanh($thietBi, now());
+            return $thietBi;
+        });
+
+        app(ThongKeSnapshotService::class)->onEntityChanged('thiet_bi');
+        return $thietBi;
+    }
+
+    /**
+     * Chuyển bản hiện hành sang lịch sử. Dùng chung cho "lưu phiên bản mới" và "ngừng sử dụng".
+     */
+    private function luuTruBanHienHanh(ThietBi $current, $thoiDiem): void
+    {
+        $current->update([
+            'trang_thai_du_lieu' => 'lich_su',
+            'hieu_luc_den'       => $thoiDiem,
+        ]);
     }
 
     /**
@@ -128,10 +189,7 @@ class ThietBiService
             $phienBanMoi = ($current->phien_ban ?? 1) + 1;
             $now = now();
 
-            $current->update([
-                'trang_thai_du_lieu' => 'lich_su',
-                'hieu_luc_den' => $now,
-            ]);
+            $this->luuTruBanHienHanh($current, $now);
 
             $data['so_luong'] = 1;
             $data['don_vi_tinh'] = 'cái';
@@ -282,6 +340,14 @@ class ThietBiService
         }
 
         return $thietBi;
+    }
+
+    /**
+     * Tìm thiết bị theo QR, kể cả bản đã ngừng sử dụng / đã thay bằng phiên bản mới.
+     */
+    public function findByQrTokenMoiTrangThai(string $token): ?ThietBi
+    {
+        return ThietBi::where('qr_token', $token)->first();
     }
 }
 

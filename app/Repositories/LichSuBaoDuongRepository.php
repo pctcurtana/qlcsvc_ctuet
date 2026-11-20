@@ -114,18 +114,6 @@ class LichSuBaoDuongRepository implements LichSuBaoDuongRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function getByThietBi(int $thietBiId): Collection
-    {
-        return $this->model
-            ->where('thiet_bi_id', $thietBiId)
-            ->orderBy('ngay_bao_duong', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->get();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getLatestByThietBi(int $thietBiId): ?LichSuBaoDuong
     {
         return $this->model

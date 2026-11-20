@@ -49,6 +49,9 @@ class Phong extends Model
             if (empty($model->qr_token)) {
                 $model->qr_token = (string) Str::uuid();
             }
+            if (empty($model->hieu_luc_tu)) {
+                $model->hieu_luc_tu = now();
+            }
         });
     }
 

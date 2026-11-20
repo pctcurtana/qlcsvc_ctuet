@@ -156,12 +156,14 @@ class PhongService
      */
     public function delete(int $id): bool
     {
-        $phong = $this->phongRepository->find($id);
-        $khuNhaId = $phong->khu_nha_id ?? null;
-        $result = $this->phongRepository->delete($id);
-        $this->clearSelectCache($khuNhaId);
+        $phong = $this->getById($id);
+        KiemTraXoa::xoa($phong, "phòng \"{$phong->ma_phong}\"", [
+            ['thiết bị', DB::table('thiet_bis')->where('phong_id', $id), true],
+            ['báo cáo sự cố', DB::table('bao_cao_su_cos')->where('phong_id', $id), false],
+        ]);
+        $this->clearSelectCache($phong->khu_nha_id);
         app(ThongKeSnapshotService::class)->onEntityChanged('phong');
-        return $result;
+        return true;
     }
 
     /**

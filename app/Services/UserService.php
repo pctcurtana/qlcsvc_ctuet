@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\Repositories\UserRepositoryInterface;
+use App\Exceptions\ServiceException;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Hash;
@@ -15,13 +16,14 @@ class UserService
     protected $userRepository;
 
     /**
-     * UserService constructor.
-     *
-     * @param UserRepositoryInterface $userRepository
+     * @var PermissionService
      */
-    public function __construct(UserRepositoryInterface $userRepository)
+    protected $permissionService;
+
+    public function __construct(UserRepositoryInterface $userRepository, PermissionService $permissionService)
     {
         $this->userRepository = $userRepository;
+        $this->permissionService = $permissionService;
     }
 
     /**
@@ -49,8 +51,12 @@ class UserService
     /**
      * Tạo người dùng mới.
      */
-    public function create(array $data): User
+    public function create(array $data, User $actor): User
     {
+        if (($data['role'] ?? 'user') === 'admin' && !$actor->isAdmin()) {
+            throw new ServiceException('Chỉ admin mới được tạo tài khoản admin.');
+        }
+
         $user = $this->userRepository->create([
             'name'     => $data['name'],
             'email'    => $data['email'],
@@ -70,21 +76,27 @@ class UserService
      * Business rules:
      * - Không cho admin tự thay đổi vai trò của chính mình.
      * - Không cho hạ cấp admin cuối cùng trong hệ thống.
+     * - Non-admin không sửa được tài khoản admin / có quyền cao hơn mình, không gán được vai trò admin.
      */
-    public function update(int $id, array $data, int $currentUserId): User
+    public function update(int $id, array $data, User $actor): User
     {
         $user = $this->getById($id);
-        $isSelf = $user->id === $currentUserId;
+        $isSelf = $user->id === $actor->id;
         $isLastAdmin = $user->role === 'admin' && $this->userRepository->countByRole('admin') <= 1;
+
+        $this->kiemTraQuyenQuanLy($actor, $user);
+        if ($data['role'] === 'admin' && !$actor->isAdmin()) {
+            throw new ServiceException('Chỉ admin mới được gán vai trò admin.');
+        }
 
         // Không cho phép admin tự thay đổi vai trò của chính mình
         if ($isSelf && $data['role'] !== $user->role) {
-            throw new \RuntimeException('Không thể thay đổi vai trò của chính mình!');
+            throw new ServiceException('Không thể thay đổi vai trò của chính mình!');
         }
 
         // Không cho hạ cấp admin cuối cùng
         if ($isLastAdmin && $data['role'] !== 'admin') {
-            throw new \RuntimeException('Không thể hạ cấp admin cuối cùng trong hệ thống!');
+            throw new ServiceException('Không thể hạ cấp admin cuối cùng trong hệ thống!');
         }
 
         $updateData = [
@@ -114,21 +126,34 @@ class UserService
      * - Không cho xóa chính mình.
      * - Không cho xóa admin cuối cùng.
      */
-    public function delete(int $id, int $currentUserId): bool
+    public function delete(int $id, User $actor): bool
     {
         $user = $this->getById($id);
 
         // Không cho xóa chính mình
-        if ($user->id === $currentUserId) {
-            throw new \RuntimeException('Không thể xóa tài khoản của chính mình!');
+        if ($user->id === $actor->id) {
+            throw new ServiceException('Không thể xóa tài khoản của chính mình!');
         }
+
+        $this->kiemTraQuyenQuanLy($actor, $user);
 
         // Không cho xóa admin cuối cùng
         if ($user->role === 'admin' && $this->userRepository->countByRole('admin') <= 1) {
-            throw new \RuntimeException('Không thể xóa admin cuối cùng trong hệ thống!');
+            throw new ServiceException('Không thể xóa admin cuối cùng trong hệ thống!');
         }
 
         return $this->userRepository->delete($id);
+    }
+
+    /**
+     * Chặn non-admin thao tác trên tài khoản admin hoặc tài khoản có quyền cao hơn mình
+     * (vd: đổi mật khẩu của người có quyền "Phân quyền" để chiếm tài khoản đó).
+     */
+    public function kiemTraQuyenQuanLy(User $actor, User $target): void
+    {
+        if (!$this->permissionService->coTheQuanLy($actor, $target)) {
+            throw new ServiceException('Bạn không có quyền thao tác trên tài khoản này (tài khoản admin hoặc có quyền cao hơn bạn).');
+        }
     }
 
     /**

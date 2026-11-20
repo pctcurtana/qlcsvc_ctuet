@@ -164,12 +164,13 @@ class KhuNhaService
      */
     public function delete(int $id): bool
     {
-        $khuNha = $this->khuNhaRepository->find($id);
-        $coSoId = $khuNha->co_so_id ?? null;
-        $result = $this->khuNhaRepository->delete($id);
-        $this->clearSelectCache($coSoId, $id);
+        $khuNha = $this->getById($id);
+        KiemTraXoa::xoa($khuNha, "toà nhà \"{$khuNha->ma_khu_nha}\"", [
+            ['phòng', DB::table('phongs')->where('khu_nha_id', $id), true],
+        ]);
+        $this->clearSelectCache($khuNha->co_so_id, $id);
         app(ThongKeSnapshotService::class)->onEntityChanged('khu_nha');
-        return $result;
+        return true;
     }
 
     /**

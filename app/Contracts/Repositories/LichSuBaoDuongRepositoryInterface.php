@@ -59,14 +59,6 @@ interface LichSuBaoDuongRepositoryInterface
     public function delete(int $id): bool;
 
     /**
-     * Lấy lịch sử bảo dưỡng theo thiết bị
-     *
-     * @param int $thietBiId
-     * @return Collection
-     */
-    public function getByThietBi(int $thietBiId): Collection;
-
-    /**
      * Lấy lịch sử bảo dưỡng mới nhất của thiết bị
      *
      * @param int $thietBiId

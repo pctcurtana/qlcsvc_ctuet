@@ -133,6 +133,7 @@ Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     });
     Route::middleware('permission:thiet-bi,can_delete')->group(function () {
         Route::delete('/thiet-bi/{thiet_bi}', [ThietBiController::class, 'destroy'])->name('thiet-bi.destroy');
+        Route::post('/thiet-bi/{thiet_bi}/ngung-su-dung', [ThietBiController::class, 'ngungSuDung'])->name('thiet-bi.ngung-su-dung');
     });
 
     // ==================== Quản lý Lịch sử Bảo dưỡng ====================
@@ -142,7 +143,6 @@ Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     });
     Route::middleware('permission:lich-su-bao-duong,can_view')->group(function () {
         Route::get('/lich-su-bao-duong', [LichSuBaoDuongController::class, 'index'])->name('lich-su-bao-duong.index');
-Route::get('/thiet-bi/{thietBi}/lich-su-bao-duong', [LichSuBaoDuongController::class, 'show'])->name('thiet-bi.lich-su-bao-duong');
     });
     Route::middleware('permission:lich-su-bao-duong,can_edit')->group(function () {
         Route::get('/lich-su-bao-duong/{lich_su_bao_duong}/edit', [LichSuBaoDuongController::class, 'edit'])->name('lich-su-bao-duong.edit');

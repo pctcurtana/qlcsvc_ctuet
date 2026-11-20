@@ -143,11 +143,13 @@ class CoSoService
      */
     public function delete(int $id): bool
     {
-        $this->getById($id);
-        $result = $this->coSoRepository->delete($id);
+        $coSo = $this->getById($id);
+        KiemTraXoa::xoa($coSo, "cơ sở \"{$coSo->ma_co_so}\"", [
+            ['toà nhà', DB::table('khu_nhas')->where('co_so_id', $id), true],
+        ]);
         $this->clearSelectCache($id);
         app(ThongKeSnapshotService::class)->onEntityChanged('co_so');
-        return $result;
+        return true;
     }
 
     /**

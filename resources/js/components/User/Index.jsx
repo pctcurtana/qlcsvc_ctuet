@@ -30,6 +30,8 @@ const { Option } = Select;
 const UserIndex = ({ users, filters }) => {
     const { auth } = usePage().props;
     const currentUserId = auth?.user?.id;
+    // Non-admin không thao tác được trên tài khoản admin (backend cũng chặn)
+    const coTheThaoTac = (record) => auth?.user?.role === 'admin' || record.role !== 'admin';
     const perm = usePermission('nguoi-dung');
     
     const [search, setSearch] = useState(filters.search || '');
@@ -116,7 +118,7 @@ const UserIndex = ({ users, filters }) => {
             width: 280,
             render: (_, record) => (
                 <Space>
-                    {perm.can_edit && (
+                    {perm.can_edit && coTheThaoTac(record) && (
                         <Link href={`/nguoi-dung/${record.id}/edit`}>
                             <Button type="primary" size="small" icon={<EditOutlined />}>
                                 Sửa
@@ -130,7 +132,7 @@ const UserIndex = ({ users, filters }) => {
                             </Button>
                         </Link>
                     )}
-                    {perm.can_delete && (
+                    {perm.can_delete && coTheThaoTac(record) && (
                         canDeleteUser(record) ? (
                             <Popconfirm
                                 title="Xác nhận xóa"

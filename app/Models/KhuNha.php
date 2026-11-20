@@ -45,6 +45,15 @@ class KhuNha extends Model
         'ban_ghi_goc_id' => 'integer',
     ];
 
+    protected static function booted()
+    {
+        static::creating(function ($model) {
+            if (empty($model->hieu_luc_tu)) {
+                $model->hieu_luc_tu = now();
+            }
+        });
+    }
+
     public function coSo()
     {
         return $this->belongsTo(CoSo::class, 'co_so_id');

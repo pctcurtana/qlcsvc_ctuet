@@ -6,10 +6,8 @@ use App\Contracts\Repositories\LichSuBaoDuongRepositoryInterface;
 use App\Contracts\Repositories\ThietBiRepositoryInterface;
 use App\Contracts\Services\LichSuBaoDuongServiceInterface;
 use App\Models\LichSuBaoDuong;
-use App\Models\ThietBi;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
 use App\Services\ThongKeSnapshotService;
 
 class LichSuBaoDuongService
@@ -108,24 +106,6 @@ class LichSuBaoDuongService
         $result = $this->lichSuBaoDuongRepository->delete($id);
         app(ThongKeSnapshotService::class)->onEntityChanged('lich_su_bao_duong');
         return $result;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getByThietBi(int $thietBiId): Collection
-    {
-        return $this->lichSuBaoDuongRepository->getByThietBi($thietBiId);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getByThietBiObject(ThietBi $thietBi): Collection
-    {
-        return $thietBi->lichSuBaoDuongs()
-            ->latest('ngay_bao_duong')
-            ->get();
     }
 
     /**

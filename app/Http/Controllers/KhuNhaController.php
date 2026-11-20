@@ -130,8 +130,11 @@ class KhuNhaController extends Controller
         try {
             $this->khuNhaService->delete($id);
             return redirect()->route('khu-nha.index')->with('success', 'Xóa toà nhà thành công!');
+        } catch (\App\Exceptions\ServiceException | \Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi xóa toà nhà: ' . $e->getMessage());
+            report($e);
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi xóa toà nhà. Vui lòng thử lại.');
         }
     }
 

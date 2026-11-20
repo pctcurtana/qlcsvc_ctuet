@@ -137,8 +137,11 @@ class PhongController extends Controller
         try {
             $this->phongService->delete($id);
             return redirect()->route('phong.index')->with('success', 'Xóa phòng thành công!');
+        } catch (\App\Exceptions\ServiceException | \Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi xóa phòng: ' . $e->getMessage());
+            report($e);
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi xóa phòng. Vui lòng thử lại.');
         }
     }
 

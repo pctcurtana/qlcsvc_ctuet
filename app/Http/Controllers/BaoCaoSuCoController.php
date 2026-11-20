@@ -72,6 +72,21 @@ class BaoCaoSuCoController extends Controller
 
     public function showSuaChuaForm(string $token)
     {
+        $banGhi = $this->thietBiService->findByQrTokenMoiTrangThai($token);
+        if (!$banGhi) {
+            abort(404, 'Không tìm thấy thiết bị với mã QR này.');
+        }
+        // QR của thiết bị đã ngừng sử dụng hoặc của phiên bản cũ (đã được thay)
+        if ($banGhi->trang_thai_du_lieu !== 'hien_hanh') {
+            return Inertia::render('BaoCao/ThietBiNgungSuDung', [
+                'thietBi' => [
+                    'ten_thiet_bi' => $banGhi->ten_thiet_bi,
+                    'ma_thiet_bi'  => $banGhi->ma_thiet_bi,
+                    'ngay_ngung'   => optional($banGhi->hieu_luc_den)->format('d/m/Y'),
+                ],
+            ]);
+        }
+
         $thietBi = $this->thietBiService->getByQrToken($token);
         $soLanSuaChua = $this->lichSuService->countSuaChuaByThietBi($thietBi->id);
         $lichSuDangSua = $this->lichSuService->getDangThucHienByThietBi($thietBi->id);

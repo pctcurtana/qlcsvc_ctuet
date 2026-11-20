@@ -30,7 +30,7 @@ class PermissionController extends Controller
     public function index()
     {
         try {
-            $users = $this->permissionService->getNonAdminUsers();
+            $users = $this->permissionService->getNonAdminUsers(auth()->user());
             $screens = $this->permissionService->getScreensTree();
 
             return Inertia::render('Permission/Index', [
@@ -61,10 +61,13 @@ class PermissionController extends Controller
     public function updateUserPermissions(UpdatePermissionRequest $request, User $user)
     {
         try {
-            $this->permissionService->updateUserPermissions($user, $request->validated()['permissions']);
+            $this->permissionService->updateUserPermissions($request->user(), $user, $request->validated()['permissions']);
             return back()->with('success', 'Cập nhật phân quyền thành công!');
+        } catch (\App\Exceptions\ServiceException $e) {
+            return back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
-            return back()->with('error', 'Lỗi khi cập nhật phân quyền: ' . $e->getMessage());
+            report($e);
+            return back()->with('error', 'Có lỗi xảy ra khi cập nhật phân quyền. Vui lòng thử lại.');
         }
     }
 

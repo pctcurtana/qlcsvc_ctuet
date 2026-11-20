@@ -164,8 +164,28 @@ class ThietBiController extends Controller
         try {
             $this->thietBiService->delete($id);
             return redirect()->route('thiet-bi.index')->with('success', 'Xóa thiết bị thành công!');
+        } catch (\App\Exceptions\ServiceException | \Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi xóa thiết bị: ' . $e->getMessage());
+            report($e);
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi xóa thiết bị. Vui lòng thử lại.');
+        }
+    }
+
+    /**
+     * Ngừng sử dụng thiết bị (chuyển sang lịch sử, không tạo phiên bản mới).
+     */
+    public function ngungSuDung($id)
+    {
+        try {
+            $thietBi = $this->thietBiService->ngungSuDung($id);
+            return redirect()->route('thiet-bi.index')
+                ->with('success', "Đã ngừng sử dụng thiết bị \"{$thietBi->ma_thiet_bi}\".");
+        } catch (\App\Exceptions\ServiceException | \Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            report($e);
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi ngừng sử dụng thiết bị. Vui lòng thử lại.');
         }
     }
 

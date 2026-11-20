@@ -165,7 +165,7 @@ const Kho = ({ thietBis, stats, phongs, filters }) => {
             width: 200,
             render: (_, record) => {
                 const tb = record.thiet_bi_thay_the;
-                if (!tb) return <Text type="secondary">—</Text>;
+                if (!tb) return <Tag color="default">Ngừng sử dụng</Tag>;
                 return (
                     <Space size={4}>
                         <SwapOutlined style={{ color: '#52c41a' }} />

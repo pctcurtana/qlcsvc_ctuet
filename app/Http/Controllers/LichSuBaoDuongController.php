@@ -6,7 +6,6 @@ use App\Services\LichSuBaoDuongService;
 use App\Services\ThietBiService;
 use App\Http\Requests\LichSuBaoDuong\StoreLichSuBaoDuongRequest;
 use App\Http\Requests\LichSuBaoDuong\UpdateLichSuBaoDuongRequest;
-use App\Models\ThietBi;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -130,23 +129,6 @@ class LichSuBaoDuongController extends Controller
             return redirect()->route('lich-su-bao-duong.index')->with('success', 'Xóa lịch sử bảo dưỡng thành công!');
         } catch (\Throwable $e) {
             return redirect()->back()->with('error', 'Lỗi khi xóa lịch sử bảo dưỡng: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Show maintenance history for a specific equipment
-     */
-    public function show(ThietBi $thietBi)
-    {
-        try {
-            $lichSuBaoDuongs = $this->lichSuBaoDuongService->getByThietBiObject($thietBi);
-
-            return Inertia::render('LichSuBaoDuong/Show', [
-                'thietBi' => $thietBi->load('phong.khuNha.coSo'),
-                'lichSuBaoDuongs' => $lichSuBaoDuongs,
-            ]);
-        } catch (\Throwable $e) {
-            return redirect()->route('lich-su-bao-duong.index')->with('error', 'Lỗi khi xem lịch sử bảo dưỡng: ' . $e->getMessage());
         }
     }
 }
