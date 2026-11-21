@@ -56,7 +56,7 @@ class ThongKeController extends Controller
                 'danhSachPhong'  => $danhSachPhong,
             ]);
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi tải thống kê: ' . $e->getMessage());
+            return redirect()->back()->with('error', $this->thongBaoLoi($e, 'Lỗi khi tải thống kê'));
         }
     }
 
@@ -87,7 +87,7 @@ class ThongKeController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi lấy snapshot: ' . $e->getMessage(),
+                'message' => $this->thongBaoLoi($e, 'Lỗi khi lấy snapshot'),
             ], 500);
         }
     }
@@ -106,7 +106,7 @@ class ThongKeController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi tính lại thống kê: ' . $e->getMessage(),
+                'message' => $this->thongBaoLoi($e, 'Lỗi khi tính lại thống kê'),
             ], 500);
         }
     }
@@ -127,7 +127,7 @@ class ThongKeController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi lấy chi tiết phòng: ' . $e->getMessage(),
+                'message' => $this->thongBaoLoi($e, 'Lỗi khi lấy chi tiết phòng'),
             ], 500);
         }
     }
@@ -148,7 +148,7 @@ class ThongKeController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi lấy chi tiết thiết bị: ' . $e->getMessage(),
+                'message' => $this->thongBaoLoi($e, 'Lỗi khi lấy chi tiết thiết bị'),
             ], 500);
         }
     }

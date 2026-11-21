@@ -58,7 +58,7 @@ class KhuNhaController extends Controller
                 'filters' => $filters,
             ]);
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi tải danh sách toà nhà: ' . $e->getMessage());
+            return redirect()->back()->with('error', $this->thongBaoLoi($e, 'Lỗi khi tải danh sách toà nhà'));
         }
     }
 
@@ -74,7 +74,7 @@ class KhuNhaController extends Controller
                 'coSos' => $coSos
             ]);
         } catch (\Throwable $e) {
-            return redirect()->route('khu-nha.index')->with('error', 'Lỗi khi tải trang tạo mới: ' . $e->getMessage());
+            return redirect()->route('khu-nha.index')->with('error', $this->thongBaoLoi($e, 'Lỗi khi tải trang tạo mới'));
         }
     }
 
@@ -87,7 +87,7 @@ class KhuNhaController extends Controller
             $this->khuNhaService->create($request->validated());
             return redirect()->route('khu-nha.index')->with('success', 'Thêm toà nhà thành công!');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi thêm toà nhà: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $this->thongBaoLoi($e, 'Lỗi khi thêm toà nhà'));
         }
     }
 
@@ -105,7 +105,7 @@ class KhuNhaController extends Controller
                 'coSos' => $coSos
             ]);
         } catch (\Throwable $e) {
-            return redirect()->route('khu-nha.index')->with('error', 'Không tìm thấy toà nhà: ' . $e->getMessage());
+            return redirect()->route('khu-nha.index')->with('error', $this->thongBaoLoi($e, 'Không tìm thấy toà nhà'));
         }
     }
 
@@ -118,7 +118,7 @@ class KhuNhaController extends Controller
             $this->khuNhaService->update($id, $request->validated());
             return redirect()->route('khu-nha.index')->with('success', 'Cập nhật toà nhà thành công!');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi cập nhật toà nhà: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $this->thongBaoLoi($e, 'Lỗi khi cập nhật toà nhà'));
         }
     }
 
@@ -147,7 +147,7 @@ class KhuNhaController extends Controller
             $this->khuNhaService->createNewVersion($id, $request->validated());
             return redirect()->route('khu-nha.index')->with('success', 'Đã ghi nhận thay đổi của toà nhà (thông tin cũ đã được lưu vào lịch sử).');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi ghi nhận thay đổi: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $this->thongBaoLoi($e, 'Lỗi khi ghi nhận thay đổi'));
         }
     }
 
@@ -160,7 +160,7 @@ class KhuNhaController extends Controller
             $this->importService->startImport('khu_nha', $request->file('file'));
             return redirect()->back()->with('success', 'Đã đưa file vào hàng đợi');
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi import: ' . $e->getMessage());
+            return redirect()->back()->with('error', $this->thongBaoLoi($e, 'Lỗi khi import'));
         }
     }
 

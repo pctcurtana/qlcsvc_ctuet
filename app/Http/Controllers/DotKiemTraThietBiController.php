@@ -59,7 +59,7 @@ class DotKiemTraThietBiController extends Controller
             $this->dotKiemTraService->delete($dotKiemTraThietBi);
             return back()->with('success', 'Đã xóa đợt kiểm tra.');
         } catch (\RuntimeException $e) {
-            return back()->with('error', $e->getMessage());
+            return back()->with('error', $this->thongBaoLoi($e, 'Không thể xoá đợt kiểm tra'));
         }
     }
 }

@@ -38,7 +38,7 @@ class PermissionController extends Controller
                 'screens' => $screens,
             ]);
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi tải trang phân quyền: ' . $e->getMessage());
+            return redirect()->back()->with('error', $this->thongBaoLoi($e, 'Lỗi khi tải trang phân quyền'));
         }
     }
 

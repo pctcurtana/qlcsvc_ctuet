@@ -65,7 +65,7 @@ class PhongController extends Controller
                 'filters' => $filters,
             ]);
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi tải danh sách phòng: ' . $e->getMessage());
+            return redirect()->back()->with('error', $this->thongBaoLoi($e, 'Lỗi khi tải danh sách phòng'));
         }
     }
 
@@ -81,7 +81,7 @@ class PhongController extends Controller
                 'khuNhas' => $khuNhas
             ]);
         } catch (\Throwable $e) {
-            return redirect()->route('phong.index')->with('error', 'Lỗi khi tải trang tạo mới: ' . $e->getMessage());
+            return redirect()->route('phong.index')->with('error', $this->thongBaoLoi($e, 'Lỗi khi tải trang tạo mới'));
         }
     }
 
@@ -94,7 +94,7 @@ class PhongController extends Controller
             $this->phongService->create($request->validated());
             return redirect()->route('phong.index')->with('success', 'Thêm phòng thành công!');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi thêm phòng: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $this->thongBaoLoi($e, 'Lỗi khi thêm phòng'));
         }
     }
 
@@ -112,7 +112,7 @@ class PhongController extends Controller
                 'khuNhas' => $khuNhas
             ]);
         } catch (\Throwable $e) {
-            return redirect()->route('phong.index')->with('error', 'Không tìm thấy phòng: ' . $e->getMessage());
+            return redirect()->route('phong.index')->with('error', $this->thongBaoLoi($e, 'Không tìm thấy phòng'));
         }
     }
 
@@ -125,7 +125,7 @@ class PhongController extends Controller
             $this->phongService->update($id, $request->validated());
             return redirect()->route('phong.index')->with('success', 'Cập nhật phòng thành công!');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi cập nhật phòng: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $this->thongBaoLoi($e, 'Lỗi khi cập nhật phòng'));
         }
     }
 
@@ -171,7 +171,7 @@ class PhongController extends Controller
             $this->phongService->createNewVersion($id, $request->validated());
             return redirect()->route('phong.index')->with('success', 'Đã ghi nhận thay đổi của phòng (thông tin cũ đã được lưu vào lịch sử).');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi ghi nhận thay đổi: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $this->thongBaoLoi($e, 'Lỗi khi ghi nhận thay đổi'));
         }
     }
 
@@ -184,7 +184,7 @@ class PhongController extends Controller
             $this->importService->startImport('phong', $request->file('file'));
             return redirect()->back()->with('success', 'Đang thực hiện import trong nền');
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi import: ' . $e->getMessage());
+            return redirect()->back()->with('error', $this->thongBaoLoi($e, 'Lỗi khi import'));
         }
     }
 

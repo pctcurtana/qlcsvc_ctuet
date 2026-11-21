@@ -49,7 +49,7 @@ class CoSoController extends Controller
                 'filters' => $filters,
             ]);
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi tải danh sách cơ sở: ' . $e->getMessage());
+            return redirect()->back()->with('error', $this->thongBaoLoi($e, 'Lỗi khi tải danh sách cơ sở'));
         }
     }
 
@@ -70,7 +70,7 @@ class CoSoController extends Controller
             $this->coSoService->create($request->validated());
             return redirect()->route('co-so.index')->with('success', 'Thêm cơ sở thành công!');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi thêm cơ sở: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $this->thongBaoLoi($e, 'Lỗi khi thêm cơ sở'));
         }
     }
 
@@ -86,7 +86,7 @@ class CoSoController extends Controller
                 'coSo' => $coSo
             ]);
         } catch (\Throwable $e) {
-            return redirect()->route('co-so.index')->with('error', 'Không tìm thấy cơ sở: ' . $e->getMessage());
+            return redirect()->route('co-so.index')->with('error', $this->thongBaoLoi($e, 'Không tìm thấy cơ sở'));
         }
     }
 
@@ -99,7 +99,7 @@ class CoSoController extends Controller
             $this->coSoService->update($id, $request->validated());
             return redirect()->route('co-so.index')->with('success', 'Cập nhật cơ sở thành công!');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi cập nhật cơ sở: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $this->thongBaoLoi($e, 'Lỗi khi cập nhật cơ sở'));
         }
     }
 
@@ -128,7 +128,7 @@ class CoSoController extends Controller
             $this->coSoService->createNewVersion($id, $request->validated());
             return redirect()->route('co-so.index')->with('success', 'Đã ghi nhận thay đổi của cơ sở (thông tin cũ đã được lưu vào lịch sử).');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi ghi nhận thay đổi: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $this->thongBaoLoi($e, 'Lỗi khi ghi nhận thay đổi'));
         }
     }
 
@@ -141,7 +141,7 @@ class CoSoController extends Controller
             $this->importService->startImport('co_so', $request->file('file'));
             return redirect()->back()->with('success', 'Đang thực hiện import trong nền');
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi import: ' . $e->getMessage());
+            return redirect()->back()->with('error', $this->thongBaoLoi($e, 'Lỗi khi import'));
         }
     }
 

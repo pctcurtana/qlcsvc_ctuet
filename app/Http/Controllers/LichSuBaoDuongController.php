@@ -53,7 +53,7 @@ class LichSuBaoDuongController extends Controller
                 'stats' => $stats,
             ]);
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi tải danh sách lịch sử bảo dưỡng: ' . $e->getMessage());
+            return redirect()->back()->with('error', $this->thongBaoLoi($e, 'Lỗi khi tải danh sách lịch sử bảo dưỡng'));
         }
     }
 
@@ -71,7 +71,7 @@ class LichSuBaoDuongController extends Controller
                 'thietBiId' => $thietBiId,
             ]);
         } catch (\Throwable $e) {
-            return redirect()->route('lich-su-bao-duong.index')->with('error', 'Lỗi khi tải trang tạo mới: ' . $e->getMessage());
+            return redirect()->route('lich-su-bao-duong.index')->with('error', $this->thongBaoLoi($e, 'Lỗi khi tải trang tạo mới'));
         }
     }
 
@@ -84,7 +84,7 @@ class LichSuBaoDuongController extends Controller
             $this->lichSuBaoDuongService->create($request->validated());
             return redirect()->route('lich-su-bao-duong.index')->with('success', 'Thêm lịch sử bảo dưỡng thành công!');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi thêm lịch sử bảo dưỡng: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $this->thongBaoLoi($e, 'Lỗi khi thêm lịch sử bảo dưỡng'));
         }
     }
 
@@ -102,7 +102,7 @@ class LichSuBaoDuongController extends Controller
                 'thietBis' => $thietBis,
             ]);
         } catch (\Throwable $e) {
-            return redirect()->route('lich-su-bao-duong.index')->with('error', 'Không tìm thấy lịch sử bảo dưỡng: ' . $e->getMessage());
+            return redirect()->route('lich-su-bao-duong.index')->with('error', $this->thongBaoLoi($e, 'Không tìm thấy lịch sử bảo dưỡng'));
         }
     }
 
@@ -115,7 +115,7 @@ class LichSuBaoDuongController extends Controller
             $this->lichSuBaoDuongService->update($id, $request->validated());
             return redirect()->route('lich-su-bao-duong.index')->with('success', 'Cập nhật lịch sử bảo dưỡng thành công!');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi cập nhật lịch sử bảo dưỡng: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $this->thongBaoLoi($e, 'Lỗi khi cập nhật lịch sử bảo dưỡng'));
         }
     }
 
@@ -128,7 +128,7 @@ class LichSuBaoDuongController extends Controller
             $this->lichSuBaoDuongService->delete($id);
             return redirect()->route('lich-su-bao-duong.index')->with('success', 'Xóa lịch sử bảo dưỡng thành công!');
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi xóa lịch sử bảo dưỡng: ' . $e->getMessage());
+            return redirect()->back()->with('error', $this->thongBaoLoi($e, 'Lỗi khi xóa lịch sử bảo dưỡng'));
         }
     }
 }

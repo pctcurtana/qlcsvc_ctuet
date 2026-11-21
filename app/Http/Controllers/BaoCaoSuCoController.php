@@ -68,7 +68,7 @@ class BaoCaoSuCoController extends Controller
                 'trang_thai' => 'yeu_cau_sua_chua',
             ]));
         } catch (\RuntimeException $e) {
-            return back()->withErrors(['thiet_bi_id' => $e->getMessage()]);
+            return back()->withErrors(['thiet_bi_id' => $this->thongBaoLoi($e, 'Không gửi được báo cáo')]);
         }
 
         return back()->with('success', 'Báo cáo đã được ghi nhận. Cảm ơn bạn!');

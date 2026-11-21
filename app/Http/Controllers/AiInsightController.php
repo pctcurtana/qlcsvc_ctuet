@@ -59,7 +59,7 @@ class AiInsightController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage() ?: 'Lỗi khi phân tích dữ liệu.',
+                'message' => $this->thongBaoLoi($e, 'Lỗi khi phân tích dữ liệu'),
             ], 500);
         }
     }

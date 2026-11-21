@@ -3,7 +3,7 @@ import { usePage, router, Head } from '@inertiajs/react';
 import { LoginBtn } from '../Common/LoginBtn';
 import {
     Form, Input, Select, Button, Card, Typography, Alert, Radio,
-    Space, Tag, Divider, Result,
+    Space, Tag, Divider, Result, message,
 } from 'antd';
 import {
     AlertOutlined, PhoneOutlined, UserOutlined,
@@ -38,6 +38,7 @@ const PhongForm = ({ phong, token }) => {
     const handleSubmit = (values) => {
         // Client-side time check (min 3 seconds)
         if (Date.now() - loadedAt.current < 3000) {
+            message.warning('Vui lòng đợi vài giây rồi bấm gửi lại.');
             return;
         }
         setSubmitting(true);

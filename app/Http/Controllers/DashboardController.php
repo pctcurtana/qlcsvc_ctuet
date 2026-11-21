@@ -46,7 +46,15 @@ class DashboardController extends Controller
                 'thongKeTrangThaiPhong' => $thongKeTrangThaiPhong ?? [],
             ]);
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi tải dashboard: ' . $e->getMessage());
+            // Không redirect()->back(): sau khi đăng nhập "trang trước" chính là dashboard → lặp vô hạn (#31)
+            session()->now('error', $this->thongBaoLoi($e, 'Lỗi khi tải dashboard'));
+            return Inertia::render('Dashboard', [
+                'statistics'            => [],
+                'thongKeLoaiPhong'      => [],
+                'thongKeLoaiThietBi'    => [],
+                'thongKeCoSo'           => [],
+                'thongKeTrangThaiPhong' => [],
+            ]);
         }
     }
 }

@@ -70,7 +70,7 @@ class ThietBiController extends Controller
                 'filters' => $filters,
             ]);
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi tải danh sách thiết bị: ' . $e->getMessage());
+            return redirect()->back()->with('error', $this->thongBaoLoi($e, 'Lỗi khi tải danh sách thiết bị'));
         }
     }
 
@@ -90,7 +90,7 @@ class ThietBiController extends Controller
                 'filters' => $filters
             ]);
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi tải danh sách thiết bị: ' . $e->getMessage());
+            return redirect()->back()->with('error', $this->thongBaoLoi($e, 'Lỗi khi tải danh sách thiết bị'));
         }
     }
 
@@ -106,7 +106,7 @@ class ThietBiController extends Controller
                 'phongs' => $phongs
             ]);
         } catch (\Throwable $e) {
-            return redirect()->route('thiet-bi.index')->with('error', 'Lỗi khi tải trang tạo mới: ' . $e->getMessage());
+            return redirect()->route('thiet-bi.index')->with('error', $this->thongBaoLoi($e, 'Lỗi khi tải trang tạo mới'));
         }
     }
 
@@ -119,7 +119,7 @@ class ThietBiController extends Controller
             $this->thietBiService->create($request->validated());
             return redirect()->route('thiet-bi.index')->with('success', 'Thêm thiết bị thành công!');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi thêm thiết bị: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $this->thongBaoLoi($e, 'Lỗi khi thêm thiết bị'));
         }
     }
 
@@ -139,7 +139,7 @@ class ThietBiController extends Controller
                 'baseUrl' => $baseUrl,
             ]);
         } catch (\Throwable $e) {
-            return redirect()->route('thiet-bi.index')->with('error', 'Không tìm thấy thiết bị: ' . $e->getMessage());
+            return redirect()->route('thiet-bi.index')->with('error', $this->thongBaoLoi($e, 'Không tìm thấy thiết bị'));
         }
     }
 
@@ -152,7 +152,7 @@ class ThietBiController extends Controller
             $this->thietBiService->update($id, $request->validated());
             return redirect()->route('thiet-bi.index')->with('success', 'Cập nhật thiết bị thành công!');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi cập nhật thiết bị: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $this->thongBaoLoi($e, 'Lỗi khi cập nhật thiết bị'));
         }
     }
 
@@ -198,7 +198,7 @@ class ThietBiController extends Controller
             $this->thietBiService->createNewVersion($id, $request->validated());
             return redirect()->route('thiet-bi.index')->with('success', 'Đã ghi nhận thay đổi của thiết bị (thông tin cũ đã được lưu vào lịch sử).');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi ghi nhận thay đổi: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', $this->thongBaoLoi($e, 'Lỗi khi ghi nhận thay đổi'));
         }
     }
 
@@ -220,7 +220,7 @@ class ThietBiController extends Controller
                 'filters'  => $filters,
             ]);
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi tải kho thiết bị: ' . $e->getMessage());
+            return redirect()->back()->with('error', $this->thongBaoLoi($e, 'Lỗi khi tải kho thiết bị'));
         }
     }
 
@@ -238,7 +238,7 @@ class ThietBiController extends Controller
                 'phongs' => $phongs
             ]);
         } catch (\Throwable $e) {
-            return redirect()->route('thiet-bi.index')->with('error', 'Không tìm thấy thiết bị: ' . $e->getMessage());
+            return redirect()->route('thiet-bi.index')->with('error', $this->thongBaoLoi($e, 'Không tìm thấy thiết bị'));
         }
     }
 
@@ -251,7 +251,7 @@ class ThietBiController extends Controller
             $this->importService->startImport('thiet_bi', $request->file('file'));
             return redirect()->back()->with('success', 'Đang thực hiện import trong nền');
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Lỗi khi import: ' . $e->getMessage());
+            return redirect()->back()->with('error', $this->thongBaoLoi($e, 'Lỗi khi import'));
         }
     }
 
