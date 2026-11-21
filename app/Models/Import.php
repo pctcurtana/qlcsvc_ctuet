@@ -47,7 +47,7 @@ class Import extends Model
     /**
      * Dọn dẹp các import bị kẹt:
      * - Import processing/pending > 2 giờ → đánh dấu failed (không thể recovery).
-     * - Import processing > 5 phút nhưng < 2 giờ → reset về pending và re-dispatch job.
+     * - Import pending > 30 giây, hoặc processing quá timeout của job (nhưng < 2 giờ) → reset về pending và re-dispatch job.
      *
      * Được gọi từ Controller trước khi hiển thị trạng thái import.
      */
@@ -72,10 +72,18 @@ class Import extends Model
             Log::warning("cleanupStaleImports: Import #{$import->id} quá 2 giờ, đánh dấu failed.");
         }
 
-        // 2. Import pending hoặc processing kẹt > 30 giây (và <= 2 giờ) → khôi phục (re-dispatch)
-        $staleImports = self::whereIn('status', ['pending', 'processing'])
-            ->where('updated_at', '<=', now()->subSeconds(30))
-            ->where('updated_at', '>', now()->subSeconds(7200))
+        // 2. Khôi phục (re-dispatch), chỉ khi chắc chắn job không còn chạy:
+        //    - pending > 30 giây: job chưa được worker nhận (job trùng sẽ bị chặn trong handle()).
+        //    - processing > thời gian timeout của job: worker đã chết giữa chừng.
+        $staleImports = self::where('updated_at', '>', now()->subSeconds(7200))
+            ->where(function ($q) {
+                $q->where(function ($q) {
+                    $q->where('status', 'pending')->where('updated_at', '<=', now()->subSeconds(30));
+                })->orWhere(function ($q) {
+                    $q->where('status', 'processing')
+                      ->where('updated_at', '<=', now()->subSeconds(3660)); // = ProcessExcelImport::$timeout (3600) + 60
+                });
+            })
             ->get();
 
         foreach ($staleImports as $import) {

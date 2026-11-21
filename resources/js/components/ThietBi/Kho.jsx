@@ -12,7 +12,7 @@ import {
     CalendarOutlined,
     EyeOutlined,
     ToolOutlined,
-    LaptopOutlined,
+    StopOutlined,
 } from '@ant-design/icons';
 import { router, Head } from '@inertiajs/react';
 import dayjs from 'dayjs';
@@ -220,13 +220,12 @@ const Kho = ({ thietBis, stats, phongs, filters }) => {
             bg: '#e6f7ff',
         },
         {
-            title: 'Tổng giá trị',
-            value: stats?.tong_gia_tri ?? 0,
+            title: 'Đã ngừng sử dụng',
+            value: stats?.da_ngung ?? 0,
             color: '#fa8c16',
-            icon: <LaptopOutlined />,
+            icon: <StopOutlined />,
             bg: '#fff7e6',
-            formatter: formatCurrency,
-            tooltip: formatCurrencyFull(stats?.tong_gia_tri ?? 0),
+            tooltip: 'Số thiết bị đã ngừng hẳn (không còn đang dùng ở đâu)',
         },
     ];
 

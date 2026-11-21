@@ -146,6 +146,23 @@ class PhongController extends Controller
     }
 
     /**
+     * Ngừng sử dụng phòng (chuyển sang lịch sử, không tạo phiên bản mới).
+     */
+    public function ngungSuDung($id)
+    {
+        try {
+            $phong = $this->phongService->ngungSuDung($id);
+            return redirect()->route('phong.index')
+                ->with('success', "Đã ngừng sử dụng phòng \"{$phong->ma_phong}\".");
+        } catch (\App\Exceptions\ServiceException | \Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            report($e);
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi ngừng sử dụng phòng. Vui lòng thử lại.');
+        }
+    }
+
+    /**
      * Lưu phiên bản mới: lưu trữ dữ liệu cũ, tạo bản ghi mới với thay đổi.
      */
     public function versionUpdate(VersionUpdatePhongRequest $request, $id)

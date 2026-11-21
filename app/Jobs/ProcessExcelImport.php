@@ -93,7 +93,14 @@ class ProcessExcelImport implements ShouldQueue
             return;
         }
 
-        $import->update(['status' => 'processing']);
+        // Nhận việc nguyên tử: nếu một job khác đã nhận import này thì bỏ qua (#14, tránh nhập trùng)
+        $claimed = Import::whereKey($import->id)->where('status', 'pending')
+            ->update(['status' => 'processing', 'updated_at' => now()]);
+        if (!$claimed) {
+            Log::info("ProcessExcelImport: Import #{$import->id} đang được job khác xử lý, bỏ qua.");
+            return;
+        }
+        $import->refresh();
 
         try {
             $fullPath = Storage::disk('local')->path($import->file_path);

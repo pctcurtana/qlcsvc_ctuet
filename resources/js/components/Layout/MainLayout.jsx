@@ -84,6 +84,8 @@ const SkeletonLoader = () => (
 
 const MainLayout = ({ children }) => {
     const [collapsed, setCollapsed] = useState(false);
+    // Điện thoại (< md): sidebar ẩn hẳn, mở ra thì đè lên nội dung (#22)
+    const [isMobile, setIsMobile] = useState(false);
     const [hoveredMenu, setHoveredMenu] = useState(null);
     const [isNavigating, setIsNavigating] = useState(false);
     const {
@@ -250,9 +252,17 @@ const MainLayout = ({ children }) => {
     return (
         <Layout style={{ minHeight: '100vh', backgroundColor: 'transparent' }}>
             <ImportNotificationListener />
+            {isMobile && !collapsed && (
+                <div
+                    onClick={() => setCollapsed(true)}
+                    style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.3)', zIndex: 1000 }}
+                />
+            )}
             <Sider
                 width={210}
-                collapsedWidth={50}
+                collapsedWidth={isMobile ? 0 : 50}
+                breakpoint="md"
+                onBreakpoint={(broken) => { setIsMobile(broken); setCollapsed(broken); }}
                 trigger={null}
                 theme="light"
                 collapsible
@@ -262,6 +272,7 @@ const MainLayout = ({ children }) => {
                     backgroundColor: 'rgba(255, 255, 255, 0.25)',
                     backdropFilter: 'blur(24px)',
                     WebkitBackdropFilter: 'blur(24px)',
+                    zIndex: isMobile ? 1001 : undefined,
                 }}
             >
                 <div className={`custom-sidebar-logo-container ${collapsed ? 'justify-center' : 'justify-start pl-4'}`}>
@@ -283,6 +294,7 @@ const MainLayout = ({ children }) => {
                     className="!bg-transparent !border-none"
                     onClick={(info) => {
                         if (info.key && info.key.startsWith('/')) {
+                            if (isMobile) setCollapsed(true);
                             router.visit(info.key);
                         }
                     }}
@@ -291,7 +303,7 @@ const MainLayout = ({ children }) => {
             <Layout
                 className="transition-[margin-left] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
                 style={{
-                    marginLeft: collapsed ? 50 : 210,
+                    marginLeft: isMobile ? 0 : (collapsed ? 50 : 210),
                     backgroundColor: 'transparent',
                 }}
             >

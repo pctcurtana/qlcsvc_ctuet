@@ -34,7 +34,7 @@ Route::post('/bao-cao/phong/{token}', [BaoCaoSuCoController::class, 'submitPhong
 // Auth Routes - Guest only
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 });
 
 // Logout - Auth only
@@ -107,6 +107,7 @@ Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     });
     Route::middleware('permission:phong,can_delete')->group(function () {
         Route::delete('/phong/{phong}', [PhongController::class, 'destroy'])->name('phong.destroy');
+        Route::post('/phong/{phong}/ngung-su-dung', [PhongController::class, 'ngungSuDung'])->name('phong.ngung-su-dung');
     });
 
     // ==================== Quản lý Thiết bị ====================

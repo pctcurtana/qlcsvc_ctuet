@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\BaoCaoSuCoRepositoryInterface;
 use App\Models\BaoCaoSuCo;
+use App\Models\Phong;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
@@ -22,7 +23,7 @@ class BaoCaoSuCoRepository implements BaoCaoSuCoRepositoryInterface
             ->with(['phong.khuNha.coSo', 'thietBi', 'dotKiemTraThietBi']);
 
         if (!empty($filters['phong_id'])) {
-            $query->where('phong_id', $filters['phong_id']);
+            $query->whereIn('phong_id', $this->moiPhienBanPhong($filters['phong_id']));
         }
         if (!empty($filters['muc_do'])) {
             $query->where('muc_do', $filters['muc_do']);
@@ -56,7 +57,7 @@ class BaoCaoSuCoRepository implements BaoCaoSuCoRepositoryInterface
             ->with(['phong.khuNha', 'thietBi', 'dotKiemTraThietBi']);
 
         if (!empty($filters['phong_id'])) {
-            $query->where('phong_id', $filters['phong_id']);
+            $query->whereIn('phong_id', $this->moiPhienBanPhong($filters['phong_id']));
         }
         if (!empty($filters['muc_do'])) {
             $query->where('muc_do', $filters['muc_do']);
@@ -146,5 +147,14 @@ class BaoCaoSuCoRepository implements BaoCaoSuCoRepositoryInterface
             SUM(CASE WHEN trang_thai = 'hoan_thanh_sua_chua' THEN 1 ELSE 0 END) as hoan_thanh,
             SUM(CASE WHEN muc_do = 'khan_cap' AND trang_thai IN ('yeu_cau_sua_chua', 'dang_sua_chua') THEN 1 ELSE 0 END) as khan_cap_chua_xu_ly
         ")->first()->toArray();
+    }
+
+    /**
+     * Id của mọi phiên bản cùng phòng: báo cáo cũ gắn với bản phòng trước khi ghi nhận thay đổi (#37).
+     */
+    private function moiPhienBanPhong($phongId)
+    {
+        $phong = Phong::find($phongId);
+        return $phong ? Phong::cungDoiTuong($phong)->select('id') : [$phongId];
     }
 }

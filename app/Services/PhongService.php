@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Contracts\Repositories\PhongRepositoryInterface;
 use App\Contracts\Services\PhongServiceInterface;
+use App\Exceptions\ServiceException;
+use App\Models\BaoCaoSuCo;
 use App\Models\Phong;
 use App\Models\ThietBi;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -164,6 +166,52 @@ class PhongService
         $this->clearSelectCache($phong->khu_nha_id);
         app(ThongKeSnapshotService::class)->onEntityChanged('phong');
         return true;
+    }
+
+    /**
+     * Ngừng sử dụng phòng (#34): chuyển bản hiện hành sang lịch sử, không tạo phiên bản mới.
+     * Chặn khi phòng còn thiết bị đang dùng hoặc còn báo cáo sự cố chưa xong.
+     */
+    public function ngungSuDung(int $id): Phong
+    {
+        $phong = DB::transaction(function () use ($id) {
+            $phong = Phong::whereKey($id)->lockForUpdate()->first();
+            if (!$phong) {
+                throw new \Illuminate\Database\Eloquent\ModelNotFoundException('Không tìm thấy phòng');
+            }
+            if ($phong->trang_thai_du_lieu !== 'hien_hanh') {
+                throw new ServiceException('Phòng này đã ngừng sử dụng hoặc đã có thông tin mới hơn.', 422);
+            }
+
+            $lyDo = [];
+            $soThietBi = ThietBi::where('phong_id', $id)->where('trang_thai_du_lieu', 'hien_hanh')->count();
+            if ($soThietBi > 0) {
+                $lyDo[] = "còn {$soThietBi} thiết bị đang dùng trong phòng (hãy chuyển phòng hoặc ngừng sử dụng chúng)";
+            }
+            $soBaoCaoMo = BaoCaoSuCo::whereIn('phong_id', Phong::cungDoiTuong($phong)->select('id'))
+                ->whereIn('trang_thai', ['yeu_cau_sua_chua', 'dang_sua_chua'])
+                ->count();
+            if ($soBaoCaoMo > 0) {
+                $lyDo[] = "còn {$soBaoCaoMo} báo cáo sự cố chưa hoàn thành";
+            }
+            if (!empty($lyDo)) {
+                throw new ServiceException(
+                    "Không thể ngừng sử dụng phòng \"{$phong->ma_phong}\": " . implode(', ', $lyDo) . '.',
+                    422
+                );
+            }
+
+            // Giữ qr_token: quét QR phòng đã ngừng sẽ không tìm thấy bản hiện hành → 404
+            $phong->update([
+                'trang_thai_du_lieu' => 'lich_su',
+                'hieu_luc_den'       => now(),
+            ]);
+            return $phong;
+        });
+
+        $this->clearSelectCache($phong->khu_nha_id);
+        app(ThongKeSnapshotService::class)->onEntityChanged('phong');
+        return $phong;
     }
 
     /**

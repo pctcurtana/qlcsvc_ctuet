@@ -6,6 +6,7 @@ use App\Contracts\Repositories\ThietBiRepositoryInterface;
 use App\Models\ThietBi;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class ThietBiRepository implements ThietBiRepositoryInterface
 {
@@ -241,26 +242,35 @@ class ThietBiRepository implements ThietBiRepositoryInterface
         $base = $this->model->where('trang_thai_du_lieu', 'lich_su');
 
         $tong = (clone $base)->count();
-        $tongGiaTri = (float) ((clone $base)->sum('gia_tri') ?? 0);
-        
+
         // Thiết bị kết thúc trong tháng này
         $thangNay = (clone $base)
             ->whereYear('hieu_luc_den', now()->year)
             ->whereMonth('hieu_luc_den', now()->month)
             ->count();
 
-        // Đếm thiết bị có phiên bản thay thế (có ban_ghi_goc_id và tồn tại bản hiện hành)
-        $gocIds = (clone $base)->whereNotNull('ban_ghi_goc_id')->pluck('ban_ghi_goc_id')->unique();
-        $daThayThe = $this->model
+        // Thiết bị đang dùng và đã từng ghi nhận thay đổi (bản hiện hành có bản gốc)
+        $daThayDoi = $this->model
             ->where('trang_thai_du_lieu', 'hien_hanh')
-            ->whereIn('ban_ghi_goc_id', $gocIds)
+            ->whereNotNull('ban_ghi_goc_id')
             ->count();
+
+        // Thiết bị đã ngừng sử dụng: chuỗi phiên bản không còn bản hiện hành (#36)
+        $daNgung = DB::table('thiet_bis as t')
+            ->where('t.trang_thai_du_lieu', 'lich_su')
+            ->whereNotExists(function ($q) {
+                $q->from('thiet_bis as h')
+                  ->where('h.trang_thai_du_lieu', 'hien_hanh')
+                  ->whereRaw('COALESCE(h.ban_ghi_goc_id, h.id) = COALESCE(t.ban_ghi_goc_id, t.id)');
+            })
+            ->distinct()
+            ->count(DB::raw('COALESCE(t.ban_ghi_goc_id, t.id)'));
 
         return [
             'tong'          => $tong,
-            'da_thay_the'   => $daThayThe,
+            'da_thay_the'   => $daThayDoi,
             'thang_nay'     => $thangNay,
-            'tong_gia_tri'  => $tongGiaTri,
+            'da_ngung'      => $daNgung,
         ];
     }
 

@@ -5,6 +5,7 @@ import {
     PlusOutlined,
     EditOutlined,
     DeleteOutlined,
+    StopOutlined,
     SearchOutlined,
     ReloadOutlined,
 } from '@ant-design/icons';
@@ -89,6 +90,11 @@ const Index = ({ phongs, khuNhas, danhSachTang, filters }) => {
                 message.error('Có lỗi xảy ra khi xóa phòng!');
             },
         });
+    };
+
+    // Kết quả (thành công / lý do bị chặn) hiển thị qua flash ở MainLayout
+    const handleNgungSuDung = (id) => {
+        router.post(`/phong/${id}/ngung-su-dung`, {}, { preserveScroll: true });
     };
 
     const handleReset = () => {
@@ -239,7 +245,7 @@ const Index = ({ phongs, khuNhas, danhSachTang, filters }) => {
             title: 'Thao tác',
             key: 'action',
             fixed: 'right',
-            width: 150,
+            width: 250,
             render: (_, record) => (
                 <Space size="small">
                     {perm.can_edit && (
@@ -260,6 +266,26 @@ const Index = ({ phongs, khuNhas, danhSachTang, filters }) => {
                         >
                             <Button danger size="small" icon={<DeleteOutlined />}>
                                 Xóa
+                            </Button>
+                        </Popconfirm>
+                    )}
+                    {perm.can_delete && (
+                        <Popconfirm
+                            title="Ngừng sử dụng phòng"
+                            description={
+                                <span>
+                                    Phòng <b>{record.ma_phong}</b> sẽ bị gỡ khỏi danh sách đang dùng,<br />
+                                    form báo sự cố QR và thống kê hiện tại.<br />
+                                    Lịch sử vẫn được giữ lại. Thao tác này không hoàn tác được.
+                                </span>
+                            }
+                            onConfirm={() => handleNgungSuDung(record.id)}
+                            okText="Ngừng sử dụng"
+                            cancelText="Hủy"
+                            okButtonProps={{ danger: true }}
+                        >
+                            <Button size="small" icon={<StopOutlined />}>
+                                Ngừng dùng
                             </Button>
                         </Popconfirm>
                     )}

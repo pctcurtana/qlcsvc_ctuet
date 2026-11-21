@@ -59,5 +59,14 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
         });
+
+        // Đăng nhập: giới hạn theo IP và theo email. Giới hạn theo email vẫn chặn được dò mật khẩu
+        // khi IP bị giả qua X-Forwarded-For (TrustProxies = '*', #08).
+        RateLimiter::for('login', function (Request $request) {
+            return [
+                Limit::perMinute(5)->by('ip:' . $request->ip()),
+                Limit::perMinute(10)->by('email:' . mb_strtolower((string) $request->input('email'))),
+            ];
+        });
     }
 }
