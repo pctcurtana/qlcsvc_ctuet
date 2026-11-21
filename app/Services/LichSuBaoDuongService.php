@@ -8,6 +8,7 @@ use App\Contracts\Services\LichSuBaoDuongServiceInterface;
 use App\Models\LichSuBaoDuong;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use App\Services\ThongKeSnapshotService;
 
 class LichSuBaoDuongService
@@ -28,12 +29,19 @@ class LichSuBaoDuongService
      * @param LichSuBaoDuongRepositoryInterface $lichSuBaoDuongRepository
      * @param ThietBiRepositoryInterface $thietBiRepository
      */
+    /**
+     * @var BaoCaoSuCoService
+     */
+    protected $baoCaoSuCoService;
+
     public function __construct(
         LichSuBaoDuongRepositoryInterface $lichSuBaoDuongRepository,
-        ThietBiRepositoryInterface $thietBiRepository
+        ThietBiRepositoryInterface $thietBiRepository,
+        BaoCaoSuCoService $baoCaoSuCoService
     ) {
         $this->lichSuBaoDuongRepository = $lichSuBaoDuongRepository;
         $this->thietBiRepository = $thietBiRepository;
+        $this->baoCaoSuCoService = $baoCaoSuCoService;
     }
 
     /**
@@ -66,12 +74,17 @@ class LichSuBaoDuongService
      */
     public function create(array $data): LichSuBaoDuong
     {
-        $lichSu = $this->lichSuBaoDuongRepository->create($data);
+        $lichSu = DB::transaction(function () use ($data) {
+            $lichSu = $this->lichSuBaoDuongRepository->create($data);
 
-        // Cập nhật thông tin bảo dưỡng cho thiết bị nếu hoàn thành
-        if ($data['trang_thai'] === 'hoan_thanh') {
-            $this->updateThietBiMaintenanceInfo($data['thiet_bi_id'], $data['ngay_bao_duong']);
-        }
+            // Cập nhật thông tin bảo dưỡng cho thiết bị nếu hoàn thành
+            if ($data['trang_thai'] === 'hoan_thanh') {
+                $this->updateThietBiMaintenanceInfo($data['thiet_bi_id'], $data['ngay_bao_duong']);
+            }
+            $this->dongBoBaoCaoSuCo($data, null);
+
+            return $lichSu;
+        });
 
         app(ThongKeSnapshotService::class)->onEntityChanged('lich_su_bao_duong');
 
@@ -86,16 +99,40 @@ class LichSuBaoDuongService
         $lichSu = $this->getById($id);
         $oldStatus = $lichSu->trang_thai;
 
-        $updatedLichSu = $this->lichSuBaoDuongRepository->update($id, $data);
+        $updatedLichSu = DB::transaction(function () use ($id, $data, $oldStatus) {
+            $updatedLichSu = $this->lichSuBaoDuongRepository->update($id, $data);
 
-        // Cập nhật thông tin bảo dưỡng cho thiết bị nếu trạng thái thay đổi thành hoàn thành
-        if ($data['trang_thai'] === 'hoan_thanh' && $oldStatus !== 'hoan_thanh') {
-            $this->updateThietBiMaintenanceInfo($data['thiet_bi_id'], $data['ngay_bao_duong']);
-        }
+            // Cập nhật thông tin bảo dưỡng cho thiết bị nếu trạng thái thay đổi thành hoàn thành
+            if ($data['trang_thai'] === 'hoan_thanh' && $oldStatus !== 'hoan_thanh') {
+                $this->updateThietBiMaintenanceInfo($data['thiet_bi_id'], $data['ngay_bao_duong']);
+            }
+            $this->dongBoBaoCaoSuCo($data, $oldStatus);
+
+            return $updatedLichSu;
+        });
 
         app(ThongKeSnapshotService::class)->onEntityChanged('lich_su_bao_duong');
 
         return $updatedLichSu;
+    }
+
+    /**
+     * Đồng bộ báo cáo sự cố đang mở của thiết bị theo phiếu (dùng chung cho form admin và QR):
+     * - chuyển sang "hoàn thành" → đóng các báo cáo đang mở;
+     * - "đang thực hiện" → báo cáo chuyển sang "đang sửa chữa".
+     */
+    protected function dongBoBaoCaoSuCo(array $data, ?string $oldStatus): void
+    {
+        $nguoi = $data['nguoi_thuc_hien'] ?? null;
+        if (!$nguoi) {
+            $nguoi = optional(auth()->user())->name ?? optional(auth()->user())->email ?? 'Hệ thống';
+        }
+
+        if ($data['trang_thai'] === 'hoan_thanh' && $oldStatus !== 'hoan_thanh') {
+            $this->baoCaoSuCoService->completeReportsForDevice($data['thiet_bi_id'], $nguoi);
+        } elseif ($data['trang_thai'] === 'dang_thuc_hien') {
+            $this->baoCaoSuCoService->updateReportsStatusForDevice($data['thiet_bi_id'], 'dang_sua_chua', $nguoi);
+        }
     }
 
     /**

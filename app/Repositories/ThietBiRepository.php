@@ -119,7 +119,6 @@ class ThietBiRepository implements ThietBiRepositoryInterface
     {
         return $this->model
             ->with('phong.khuNha')
-            ->where('trang_thai', 'tot')
             ->where('trang_thai_du_lieu', 'hien_hanh')
             ->orderBy('ma_thiet_bi', 'asc')
             ->get($columns);

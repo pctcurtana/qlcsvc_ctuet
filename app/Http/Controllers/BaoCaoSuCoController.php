@@ -157,16 +157,11 @@ class BaoCaoSuCoController extends Controller
             'ghi_chu'         => 'Ghi nhận qua QR code',
         ];
 
+        // Service tự đóng/cập nhật báo cáo sự cố trong cùng transaction (#09, #10)
         if ($lichSuDangSua) {
             $this->lichSuService->update($lichSuDangSua->id, $payload);
         } else {
             $this->lichSuService->create($payload);
-        }
-
-        if ($validated['trang_thai'] === 'hoan_thanh') {
-            $this->baoCaoService->completeReportsForDevice($thietBi->id, $nguoiThucHien);
-        } else {
-            $this->baoCaoService->updateReportsStatusForDevice($thietBi->id, 'dang_sua_chua', $nguoiThucHien);
         }
 
         $successMsg = $validated['trang_thai'] === 'hoan_thanh' 
