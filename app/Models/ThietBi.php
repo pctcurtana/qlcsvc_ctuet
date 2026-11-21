@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 class ThietBi extends Model
 {
-    use HasFactory;
+    use HasFactory, Concerns\CoPhienBan;
 
     protected $table = 'thiet_bis';
 

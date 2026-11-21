@@ -196,9 +196,9 @@ class ThietBiController extends Controller
     {
         try {
             $this->thietBiService->createNewVersion($id, $request->validated());
-            return redirect()->route('thiet-bi.index')->with('success', 'Đã lưu phiên bản mới cho thiết bị thành công!');
+            return redirect()->route('thiet-bi.index')->with('success', 'Đã ghi nhận thay đổi của thiết bị (thông tin cũ đã được lưu vào lịch sử).');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi lưu phiên bản mới: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Lỗi khi ghi nhận thay đổi: ' . $e->getMessage());
         }
     }
 

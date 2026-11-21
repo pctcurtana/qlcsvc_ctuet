@@ -51,7 +51,7 @@ const Edit = ({ khuNha, coSos }) => {
         });
     };
 
-    // Cập nhật trực tiếp — thực thi submit
+    // Sửa lỗi nhập liệu — thực thi submit
     const handleDirectUpdate = (values) => {
         setSubmitting(true);
         router.put(`/khu-nha/${khuNha.id}`, values, {
@@ -65,7 +65,7 @@ const Edit = ({ khuNha, coSos }) => {
         });
     };
 
-    // Nút Cập nhật trực tiếp — validate trước khi submit
+    // Nút Sửa lỗi nhập liệu — validate trước khi submit
     const handleDirectUpdateClick = () => {
         form.validateFields().then(values => {
             const allFields = {
@@ -94,20 +94,20 @@ const Edit = ({ khuNha, coSos }) => {
         });
     };
 
-    // Mở modal xác nhận lưu phiên bản mới
+    // Mở modal xác nhận ghi nhận thay đổi
     const handleVersionUpdateClick = () => {
         form.validateFields().then(values => {
             const maChanged = String(values.ma_khu_nha ?? '').trim() !== String(khuNha.ma_khu_nha ?? '').trim();
             if (!checkHasChanges(values)) {
                 if (maChanged) {
-                    message.warning('Mã toà nhà chỉ thay đổi được bằng "Cập nhật trực tiếp". Phiên bản mới không ghi nhận thay đổi mã.');
+                    message.warning('Mã toà nhà chỉ thay đổi được bằng "Sửa lỗi nhập liệu". "Ghi nhận thay đổi" không đổi mã.');
                 } else {
-                    message.warning('Không có thay đổi nào để lưu phiên bản mới.');
+                    message.warning('Không có thay đổi nào để ghi nhận.');
                 }
                 return;
             }
             if (maChanged) {
-                message.info('Lưu ý: Mã toà nhà sẽ không thay đổi khi lưu phiên bản mới. Nếu muốn đổi mã, hãy dùng "Cập nhật trực tiếp".');
+                message.info('Lưu ý: Mã toà nhà được giữ nguyên khi "Ghi nhận thay đổi". Nếu muốn đổi mã, hãy dùng "Sửa lỗi nhập liệu".');
             }
             setPendingValues(values);
             setVersionModalVisible(true);
@@ -116,7 +116,7 @@ const Edit = ({ khuNha, coSos }) => {
         });
     };
 
-    // Xác nhận lưu phiên bản mới
+    // Xác nhận ghi nhận thay đổi
     const handleVersionUpdateConfirm = () => {
         if (!pendingValues) return;
         setSubmitting(true);
@@ -151,8 +151,8 @@ const Edit = ({ khuNha, coSos }) => {
                     message="Chọn cách cập nhật"
                     description={
                         <ul style={{ marginBottom: 0, paddingLeft: 20 }}>
-                            <li><strong>Cập nhật trực tiếp:</strong> Ghi đè dữ liệu hiện tại. Dữ liệu cũ sẽ bị mất.</li>
-                            <li><strong>Lưu phiên bản mới:</strong> Giữ nguyên dữ liệu cũ làm lịch sử, tạo bản ghi mới với thay đổi. Dùng khi cần xuất báo cáo theo mốc thời gian.</li>
+                            <li><strong>Sửa lỗi nhập liệu:</strong> Ghi đè thông tin hiện tại, không lưu lịch sử. Chỉ dùng khi lỡ nhập sai.</li>
+                            <li><strong>Ghi nhận thay đổi:</strong> Dùng khi có thay đổi thực tế. Thông tin cũ được lưu vào lịch sử (hiệu lực đến hôm nay), thông tin mới áp dụng từ hôm nay, nên báo cáo theo mốc thời gian vẫn đúng.</li>
                         </ul>
                     }
                     type="info"
@@ -178,7 +178,7 @@ const Edit = ({ khuNha, coSos }) => {
                         label="Mã toà nhà"
                         name="ma_khu_nha"
                         rules={[{ required: true, message: 'Vui lòng nhập mã toà nhà!' }]}
-                        tooltip="Khi lưu phiên bản mới, mã toà nhà được giữ nguyên từ bản gốc dù có thay đổi ở đây"
+                        tooltip="Mã toà nhà chỉ đổi được bằng Sửa lỗi nhập liệu; khi ghi nhận thay đổi, mã được giữ nguyên"
                     >
                         <Input placeholder="Ví dụ: KNA" size="large" />
                     </Form.Item>
@@ -322,7 +322,7 @@ const Edit = ({ khuNha, coSos }) => {
                                 loading={submitting}
                                 onClick={handleDirectUpdateClick}
                             >
-                                Cập nhật trực tiếp
+                                Sửa lỗi nhập liệu
                             </Button>
                             <Button
                                 type="default"
@@ -332,7 +332,7 @@ const Edit = ({ khuNha, coSos }) => {
                                 onClick={handleVersionUpdateClick}
                                 style={{ borderColor: '#fa8c16', color: '#fa8c16' }}
                             >
-                                Lưu phiên bản mới
+                                Ghi nhận thay đổi
                             </Button>
                             <Link href="/khu-nha">
                                 <Button icon={<RollbackOutlined />} size="large">Quay lại</Button>
@@ -346,27 +346,27 @@ const Edit = ({ khuNha, coSos }) => {
                 title={
                     <Space>
                         <ExclamationCircleOutlined style={{ color: '#fa8c16' }} />
-                        <span>Xác nhận lưu phiên bản mới</span>
+                        <span>Xác nhận ghi nhận thay đổi</span>
                     </Space>
                 }
                 open={versionModalVisible}
                 onOk={handleVersionUpdateConfirm}
                 onCancel={() => setVersionModalVisible(false)}
-                okText="Xác nhận lưu phiên bản mới"
+                okText="Xác nhận ghi nhận thay đổi"
                 cancelText="Hủy"
                 okButtonProps={{ style: { background: '#fa8c16', borderColor: '#fa8c16' } }}
             >
                 <p>
-                    Hệ thống sẽ <strong>lưu trữ dữ liệu hiện tại</strong> của toà nhà <strong>{khuNha.ten_khu_nha}</strong> vào lịch sử và tạo <strong>phiên bản {(khuNha.phien_ban ?? 1) + 1}</strong> với các thay đổi bạn vừa nhập.
+                    Thông tin hiện tại của toà nhà <strong>{khuNha.ten_khu_nha}</strong> sẽ được <strong>lưu vào lịch sử</strong> (hiệu lực đến hôm nay). Thông tin mới áp dụng từ hôm nay (<strong>phiên bản {(khuNha.phien_ban ?? 1) + 1}</strong>).
                 </p>
                 <Alert
-                    message="Dữ liệu cũ sẽ được giữ lại để xuất báo cáo theo mốc thời gian."
+                    message="Thông tin cũ được giữ lại để xuất báo cáo theo mốc thời gian."
                     type="success"
                     showIcon
                     style={{ marginTop: 12 }}
                 />
                 <Alert
-                    message="Tất cả phòng đang hoạt động thuộc toà nhà này sẽ tự động liên kết sang phiên bản mới."
+                    message="Các phòng đang dùng thuộc toà nhà này tự động chuyển theo thông tin mới."
                     type="info"
                     showIcon
                     style={{ marginTop: 8 }}

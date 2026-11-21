@@ -200,6 +200,8 @@ class PhongRepository implements PhongRepositoryInterface
     public function regenerateQrToken(int $id): bool
     {
         $phong = $this->model->findOrFail($id);
+        // Vô hiệu cả QR cũ của các phiên bản trước (nếu không chúng vẫn được chuyển tiếp sang bản hiện hành)
+        $this->model->cungDoiTuong($phong)->where('trang_thai_du_lieu', 'lich_su')->update(['qr_token' => null]);
         return $phong->update([
             'qr_token' => \Illuminate\Support\Str::uuid(),
         ]);

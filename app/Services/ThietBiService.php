@@ -177,8 +177,10 @@ class ThietBiService
      * Tạo phiên bản mới: lưu trữ bản ghi hiện tại vào lịch sử,
      * tạo bản ghi mới với dữ liệu đã cập nhật.
      *
-     * ThietBi không có con nên không cần cascade FK.
-     * Lịch sử bảo dưỡng vẫn liên kết với bản ghi cũ (có thể truy vết qua ban_ghi_goc_id).
+     * Đây vẫn là CÙNG một thiết bị (vd chuyển phòng), nên:
+     * - QR được giữ nguyên (chuyển token sang bản mới) để tem QR đã dán vẫn dùng được;
+     * - báo cáo sự cố / phiếu sửa chữa đang mở đi theo bản mới;
+     * - phiếu đã xong ở lại bản cũ làm lịch sử (truy vết qua ban_ghi_goc_id).
      */
     public function createNewVersion(int $id, array $data): ThietBi
     {
@@ -188,8 +190,11 @@ class ThietBiService
             $gocId = $current->ban_ghi_goc_id ?? $current->id;
             $phienBanMoi = ($current->phien_ban ?? 1) + 1;
             $now = now();
+            $qrToken = $current->qr_token;
 
             $this->luuTruBanHienHanh($current, $now);
+            // Gỡ token khỏi bản cũ trước (cột qr_token unique)
+            $current->update(['qr_token' => null]);
 
             $data['so_luong'] = 1;
             $data['don_vi_tinh'] = 'cái';
@@ -207,7 +212,15 @@ class ThietBiService
                 'hieu_luc_den'       => null,
                 'phien_ban'          => $phienBanMoi,
                 'ban_ghi_goc_id'     => $gocId,
+                'qr_token'           => $qrToken,
             ]));
+
+            BaoCaoSuCo::where('thiet_bi_id', $current->id)
+                ->whereIn('trang_thai', ['yeu_cau_sua_chua', 'dang_sua_chua'])
+                ->update(['thiet_bi_id' => $newRecord->id]);
+            LichSuBaoDuong::where('thiet_bi_id', $current->id)
+                ->whereIn('trang_thai', ['chua_thuc_hien', 'dang_thuc_hien'])
+                ->update(['thiet_bi_id' => $newRecord->id]);
 
             app(ThongKeSnapshotService::class)->onEntityChanged('thiet_bi');
 

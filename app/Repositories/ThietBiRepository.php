@@ -352,6 +352,9 @@ class ThietBiRepository implements ThietBiRepositoryInterface
             ->where('trang_thai_du_lieu', 'hien_hanh')
             ->firstOrFail();
 
+        // Vô hiệu cả QR cũ của các phiên bản trước (nếu không chúng vẫn được chuyển tiếp sang bản hiện hành)
+        $this->model->cungDoiTuong($thietBi)->where('trang_thai_du_lieu', 'lich_su')->update(['qr_token' => null]);
+
         return $thietBi->update([
             'qr_token' => \Illuminate\Support\Str::uuid(),
         ]);

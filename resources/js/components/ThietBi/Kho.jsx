@@ -113,7 +113,7 @@ const Kho = ({ thietBis, stats, phongs, filters }) => {
                 (thietBis.current_page - 1) * thietBis.per_page + index + 1,
         },
         {
-            title: 'Ngày kết thúc',
+            title: 'Lưu lịch sử ngày',
             dataIndex: 'hieu_luc_den',
             key: 'hieu_luc_den',
             width: 120,
@@ -160,19 +160,18 @@ const Kho = ({ thietBis, stats, phongs, filters }) => {
             },
         },
         {
-            title: 'Thay thế bởi',
+            title: 'Hiện nay',
             key: 'thiet_bi_thay_the',
             width: 200,
             render: (_, record) => {
+                // thiet_bi_thay_the = bản hiện hành của CÙNG thiết bị (không phải máy khác)
                 const tb = record.thiet_bi_thay_the;
                 if (!tb) return <Tag color="default">Ngừng sử dụng</Tag>;
                 return (
                     <Space size={4}>
                         <SwapOutlined style={{ color: '#52c41a' }} />
                         <Text style={{ fontSize: 13 }}>
-                            {tb.ten_thiet_bi?.length > 25
-                                ? tb.ten_thiet_bi.slice(0, 25) + '…'
-                                : tb.ten_thiet_bi}
+                            Đang dùng tại {tb.phong?.ten_phong ?? '(chưa gán phòng)'}
                         </Text>
                     </Space>
                 );
@@ -200,21 +199,21 @@ const Kho = ({ thietBis, stats, phongs, filters }) => {
     // KPI cards
     const kpiCards = [
         {
-            title: 'Tổng thiết bị cũ',
+            title: 'Bản ghi lịch sử',
             value: stats?.tong ?? 0,
             color: '#722ed1',
             icon: <HistoryOutlined />,
             bg: '#f9f0ff',
         },
         {
-            title: 'Đã thay thế',
+            title: 'Thiết bị có thay đổi',
             value: stats?.da_thay_the ?? stats?.tong ?? 0,
             color: '#52c41a',
             icon: <SwapOutlined />,
             bg: '#f6ffed',
         },
         {
-            title: 'Tháng này',
+            title: 'Ghi nhận tháng này',
             value: stats?.thang_nay ?? 0,
             color: '#1890ff',
             icon: <CalendarOutlined />,
@@ -260,7 +259,7 @@ const Kho = ({ thietBis, stats, phongs, filters }) => {
                                 <Title level={4} style={{ margin: 0 }}>Lịch sử thiết bị</Title>
                             </Space>
                             <div style={{ color: '#666', fontSize: 13, marginTop: 4 }}>
-                                Các thiết bị đã được thay thế bởi phiên bản mới hoặc ngừng sử dụng
+                                Thông tin cũ của thiết bị trước mỗi lần ghi nhận thay đổi (vd chuyển phòng), và các thiết bị đã ngừng sử dụng
                             </div>
                         </Col>
                     </Row>
@@ -417,19 +416,21 @@ const Kho = ({ thietBis, stats, phongs, filters }) => {
                             <Descriptions.Item label="Nguồn gốc" span={1}>
                                 {detailModal.nguon_goc || '—'}
                             </Descriptions.Item>
-                            <Descriptions.Item label="Thời gian sử dụng" span={2}>
+                            <Descriptions.Item label="Thời gian hiệu lực" span={2}>
                                 <Space>
                                     <Badge status="success" text={`Từ: ${formatDate(detailModal.hieu_luc_tu)}`} />
                                     <Badge status="error" text={`Đến: ${formatDate(detailModal.hieu_luc_den)}`} />
                                 </Space>
                             </Descriptions.Item>
                             {detailModal.thiet_bi_thay_the && (
-                                <Descriptions.Item label="Được thay thế bởi" span={2}>
+                                <Descriptions.Item label="Hiện nay" span={2}>
                                     <Card size="small" style={{ background: '#f6ffed', borderColor: '#b7eb8f' }}>
                                         <Space>
                                             <SwapOutlined style={{ color: '#52c41a' }} />
                                             <Text strong>{detailModal.thiet_bi_thay_the.ten_thiet_bi}</Text>
-                                            <Text type="secondary">({detailModal.thiet_bi_thay_the.ma_thiet_bi})</Text>
+                                            <Text type="secondary">
+                                                đang dùng tại {detailModal.thiet_bi_thay_the.phong?.ten_phong ?? '(chưa gán phòng)'}
+                                            </Text>
                                         </Space>
                                     </Card>
                                 </Descriptions.Item>

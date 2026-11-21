@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\LichSuBaoDuongRepositoryInterface;
 use App\Models\LichSuBaoDuong;
+use App\Models\ThietBi;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -144,8 +145,14 @@ class LichSuBaoDuongRepository implements LichSuBaoDuongRepositoryInterface
      */
     public function countByThietBiAndType(int $thietBiId, string $loaiBaoDuong): int
     {
+        // Đếm trên mọi phiên bản của thiết bị (chuyển phòng không làm mất số lần sửa)
+        $thietBi = ThietBi::find($thietBiId);
+        if (!$thietBi) {
+            return 0;
+        }
+
         return $this->model
-            ->where('thiet_bi_id', $thietBiId)
+            ->whereIn('thiet_bi_id', ThietBi::cungDoiTuong($thietBi)->select('id'))
             ->where('loai_bao_duong', $loaiBaoDuong)
             ->count();
     }

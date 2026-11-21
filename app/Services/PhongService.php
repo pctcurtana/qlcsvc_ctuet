@@ -181,9 +181,13 @@ class PhongService
             $phienBanMoi = ($current->phien_ban ?? 1) + 1;
             $now = now();
 
+            $qrToken = $current->qr_token;
+
+            // Gỡ QR khỏi bản cũ (cột unique) để chuyển sang bản mới: tem QR dán ở cửa phòng vẫn dùng được
             $current->update([
                 'trang_thai_du_lieu' => 'lich_su',
                 'hieu_luc_den' => $now,
+                'qr_token' => null,
             ]);
 
             $newRecord = $this->phongRepository->create(array_merge($data, [
@@ -193,6 +197,7 @@ class PhongService
                 'hieu_luc_den'       => null,
                 'phien_ban'          => $phienBanMoi,
                 'ban_ghi_goc_id'     => $gocId,
+                'qr_token'           => $qrToken,
             ]));
 
             // Cascade: chuyển các ThietBi hien_hanh sang phong_id mới

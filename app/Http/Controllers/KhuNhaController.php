@@ -145,9 +145,9 @@ class KhuNhaController extends Controller
     {
         try {
             $this->khuNhaService->createNewVersion($id, $request->validated());
-            return redirect()->route('khu-nha.index')->with('success', 'Đã lưu phiên bản mới cho toà nhà thành công!');
+            return redirect()->route('khu-nha.index')->with('success', 'Đã ghi nhận thay đổi của toà nhà (thông tin cũ đã được lưu vào lịch sử).');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi lưu phiên bản mới: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Lỗi khi ghi nhận thay đổi: ' . $e->getMessage());
         }
     }
 

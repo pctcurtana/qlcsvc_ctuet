@@ -152,9 +152,9 @@ class PhongController extends Controller
     {
         try {
             $this->phongService->createNewVersion($id, $request->validated());
-            return redirect()->route('phong.index')->with('success', 'Đã lưu phiên bản mới cho phòng thành công!');
+            return redirect()->route('phong.index')->with('success', 'Đã ghi nhận thay đổi của phòng (thông tin cũ đã được lưu vào lịch sử).');
         } catch (\Throwable $e) {
-            return redirect()->back()->withInput()->with('error', 'Lỗi khi lưu phiên bản mới: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Lỗi khi ghi nhận thay đổi: ' . $e->getMessage());
         }
     }
 

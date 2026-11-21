@@ -8,6 +8,7 @@ use App\Services\ThietBiService;
 use App\Services\DotKiemTraThietBiService;
 use App\Http\Requests\BaoCaoSuCo\StoreBaoCaoSuCoRequest;
 use App\Exports\BaoCaoSuCoExport;
+use App\Models\Phong;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
@@ -38,6 +39,11 @@ class BaoCaoSuCoController extends Controller
         $phong = $this->baoCaoService->getPhongByToken($token);
 
         if (!$phong) {
+            // Tem QR in trước khi QR được giữ qua các phiên bản: chuyển sang QR của bản hiện hành
+            $hienHanh = optional(Phong::where('qr_token', $token)->first())->banHienHanh();
+            if ($hienHanh && $hienHanh->qr_token) {
+                return redirect()->route('bao-cao.phong.show', $hienHanh->qr_token);
+            }
             abort(404, 'Phòng không tồn tại hoặc mã QR đã hết hiệu lực.');
         }
 
@@ -76,8 +82,12 @@ class BaoCaoSuCoController extends Controller
         if (!$banGhi) {
             abort(404, 'Không tìm thấy thiết bị với mã QR này.');
         }
-        // QR của thiết bị đã ngừng sử dụng hoặc của phiên bản cũ (đã được thay)
-        if ($banGhi->trang_thai_du_lieu !== 'hien_hanh') {
+        $hienHanh = $banGhi->banHienHanh();
+        // Tem QR in trước khi QR được giữ qua các phiên bản: thiết bị vẫn đang dùng, chuyển sang QR hiện hành
+        if ($hienHanh && $hienHanh->qr_token && $hienHanh->qr_token !== $token) {
+            return redirect()->route('sua-chua.show', $hienHanh->qr_token);
+        }
+        if (!$hienHanh) {
             return Inertia::render('BaoCao/ThietBiNgungSuDung', [
                 'thietBi' => [
                     'ten_thiet_bi' => $banGhi->ten_thiet_bi,

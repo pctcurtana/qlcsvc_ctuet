@@ -82,7 +82,7 @@ const Edit = ({ thietBi, phongs, baseUrl }) => {
         });
     };
 
-    // Cập nhật trực tiếp — thực thi submit
+    // Sửa lỗi nhập liệu — thực thi submit
     const handleDirectUpdate = (values) => {
         setSubmitting(true);
         router.put(`/thiet-bi/${thietBi.id}`, formatDates(values), {
@@ -94,7 +94,7 @@ const Edit = ({ thietBi, phongs, baseUrl }) => {
         });
     };
 
-    // Nút Cập nhật trực tiếp — validate trước khi submit
+    // Nút Sửa lỗi nhập liệu — validate trước khi submit
     const handleDirectUpdateClick = () => {
         form.validateFields().then(values => {
             const allFields = {
@@ -131,21 +131,21 @@ const Edit = ({ thietBi, phongs, baseUrl }) => {
         });
     };
 
-    // Mở modal xác nhận lưu phiên bản mới
+    // Mở modal xác nhận ghi nhận thay đổi
     const handleVersionUpdateClick = () => {
         form.validateFields().then(values => {
             const maChanged = String(values.ma_thiet_bi ?? '').trim() !== String(thietBi.ma_thiet_bi ?? '').trim()
                 || String(values.serial_number ?? '').trim() !== String(thietBi.serial_number ?? '').trim();
             if (!checkHasChanges(values)) {
                 if (maChanged) {
-                    message.warning('Mã thiết bị / Số serial chỉ thay đổi được bằng "Cập nhật trực tiếp". Phiên bản mới không ghi nhận thay đổi mã.');
+                    message.warning('Mã thiết bị / Số serial chỉ thay đổi được bằng "Sửa lỗi nhập liệu". "Ghi nhận thay đổi" không đổi mã.');
                 } else {
-                    message.warning('Không có thay đổi nào để lưu phiên bản mới.');
+                    message.warning('Không có thay đổi nào để ghi nhận.');
                 }
                 return;
             }
             if (maChanged) {
-                message.info('Lưu ý: Mã thiết bị và Số serial sẽ không thay đổi khi lưu phiên bản mới. Nếu muốn đổi, hãy dùng "Cập nhật trực tiếp".');
+                message.info('Lưu ý: Mã thiết bị và Số serial được giữ nguyên khi "Ghi nhận thay đổi". Nếu muốn đổi, hãy dùng "Sửa lỗi nhập liệu".');
             }
             setPendingValues(formatDates(values));
             setVersionModalVisible(true);
@@ -154,7 +154,7 @@ const Edit = ({ thietBi, phongs, baseUrl }) => {
         });
     };
 
-    // Xác nhận lưu phiên bản mới
+    // Xác nhận ghi nhận thay đổi
     const handleVersionUpdateConfirm = () => {
         if (!pendingValues) return;
         setSubmitting(true);
@@ -179,8 +179,8 @@ const Edit = ({ thietBi, phongs, baseUrl }) => {
                 message="Chọn cách cập nhật"
                 description={
                     <ul style={{ marginBottom: 0, paddingLeft: 20 }}>
-                        <li><strong>Cập nhật trực tiếp:</strong> Ghi đè dữ liệu hiện tại.</li>
-                        <li><strong>Lưu phiên bản mới:</strong> Giữ nguyên dữ liệu cũ làm lịch sử, tạo bản ghi mới. Mã thiết bị và Serial được giữ nguyên từ bản ghi gốc.</li>
+                        <li><strong>Sửa lỗi nhập liệu:</strong> Ghi đè thông tin hiện tại, không lưu lịch sử. Chỉ dùng khi lỡ nhập sai.</li>
+                        <li><strong>Ghi nhận thay đổi:</strong> Dùng khi có thay đổi thực tế (vd chuyển sang phòng khác). Thông tin cũ được lưu vào lịch sử (hiệu lực đến hôm nay), thông tin mới áp dụng từ hôm nay. Mã thiết bị, Serial và mã QR giữ nguyên.</li>
                     </ul>
                 }
                 type="info"
@@ -208,7 +208,7 @@ const Edit = ({ thietBi, phongs, baseUrl }) => {
                         label="Mã thiết bị"
                         name="ma_thiet_bi"
                         rules={[{ required: true, message: 'Vui lòng nhập mã thiết bị!' }]}
-                        tooltip="Mã thiết bị và Serial không thay đổi khi lưu phiên bản mới"
+                        tooltip="Mã thiết bị và Serial chỉ đổi được bằng Sửa lỗi nhập liệu; khi ghi nhận thay đổi, chúng được giữ nguyên"
                     >
                         <Input placeholder="Ví dụ: TB001" size="large" />
                     </Form.Item>
@@ -386,7 +386,7 @@ const Edit = ({ thietBi, phongs, baseUrl }) => {
                         loading={submitting}
                         onClick={handleDirectUpdateClick}
                     >
-                        Cập nhật trực tiếp
+                        Sửa lỗi nhập liệu
                     </Button>
                     <Button
                         type="default"
@@ -396,7 +396,7 @@ const Edit = ({ thietBi, phongs, baseUrl }) => {
                         onClick={handleVersionUpdateClick}
                         style={{ borderColor: '#fa8c16', color: '#fa8c16' }}
                     >
-                        Lưu phiên bản mới
+                        Ghi nhận thay đổi
                     </Button>
                     <Link href={`/thiet-bi/${thietBi.id}/duplicate`}>
                         <Tooltip title="Tạo thiết bị mới với thông tin giống thiết bị này">
@@ -465,27 +465,27 @@ const Edit = ({ thietBi, phongs, baseUrl }) => {
                 title={
                     <Space>
                         <ExclamationCircleOutlined style={{ color: '#fa8c16' }} />
-                        <span>Xác nhận lưu phiên bản mới</span>
+                        <span>Xác nhận ghi nhận thay đổi</span>
                     </Space>
                 }
                 open={versionModalVisible}
                 onOk={handleVersionUpdateConfirm}
                 onCancel={() => setVersionModalVisible(false)}
-                okText="Xác nhận lưu phiên bản mới"
+                okText="Xác nhận ghi nhận thay đổi"
                 cancelText="Hủy"
                 okButtonProps={{ style: { background: '#fa8c16', borderColor: '#fa8c16' } }}
             >
                 <p>
-                    Hệ thống sẽ <strong>lưu trữ dữ liệu hiện tại</strong> của thiết bị <strong>{thietBi.ten_thiet_bi}</strong> vào lịch sử và tạo <strong>phiên bản {(thietBi.phien_ban ?? 1) + 1}</strong> với các thay đổi bạn vừa nhập.
+                    Thông tin hiện tại của thiết bị <strong>{thietBi.ten_thiet_bi}</strong> sẽ được <strong>lưu vào lịch sử</strong> (hiệu lực đến hôm nay). Thông tin mới áp dụng từ hôm nay (<strong>phiên bản {(thietBi.phien_ban ?? 1) + 1}</strong>).
                 </p>
                 <Alert
-                    message="Dữ liệu cũ sẽ được giữ lại để xuất báo cáo theo mốc thời gian."
+                    message="Thông tin cũ được giữ lại để xuất báo cáo theo mốc thời gian."
                     type="success"
                     showIcon
                     style={{ marginTop: 12 }}
                 />
                 <Alert
-                    message="Mã thiết bị và Số Serial sẽ được giữ nguyên từ bản ghi gốc."
+                    message="Mã thiết bị, Số Serial và mã QR dán trên thiết bị được giữ nguyên."
                     type="info"
                     showIcon
                     style={{ marginTop: 8 }}
