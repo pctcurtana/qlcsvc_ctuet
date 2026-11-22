@@ -42,7 +42,7 @@ class LichSuBaoDuongController extends Controller
     {
         try {
             $filters = $request->only(['search', 'thiet_bi_id', 'loai_bao_duong', 'trang_thai', 'per_page']);
-            $lichSuBaoDuongs = $this->lichSuBaoDuongService->getAllPaginated($filters, (int)$request->input('per_page', 10));
+            $lichSuBaoDuongs = $this->lichSuBaoDuongService->getAllPaginated($filters, $this->perPage(10));
 
             // Thống kê cho KPI cards
             $stats = $this->lichSuBaoDuongService->getStats();
@@ -96,6 +96,13 @@ class LichSuBaoDuongController extends Controller
         try {
             $lichSuBaoDuong = $this->lichSuBaoDuongService->getById($id);
             $thietBis = $this->thietBiService->getActiveThietBis();
+
+            // Phiếu cũ có thể gắn với bản thiết bị đã lưu lịch sử (không có trong danh sách hiện hành):
+            // thêm vào để ô thiết bị hiện tên thay vì số ID (#38)
+            $thietBiCuaPhieu = $lichSuBaoDuong->thietBi;
+            if ($thietBiCuaPhieu && !$thietBis->contains('id', $thietBiCuaPhieu->id)) {
+                $thietBis->prepend($thietBiCuaPhieu->loadMissing('phong'));
+            }
 
             return Inertia::render('LichSuBaoDuong/Edit', [
                 'lichSuBaoDuong' => $lichSuBaoDuong,

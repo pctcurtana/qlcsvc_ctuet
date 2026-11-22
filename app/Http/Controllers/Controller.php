@@ -15,6 +15,15 @@ class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     /**
+     * Số dòng mỗi trang từ ?per_page, giới hạn 1–100 (#19: chặn ?per_page=100000 làm nặng server).
+     * 100 là mức lớn nhất bộ chọn của Ant Design Table cho phép.
+     */
+    protected function perPage(int $macDinh = 10): int
+    {
+        return max(1, min((int) request()->input('per_page', $macDinh), 100));
+    }
+
+    /**
      * Câu báo lỗi an toàn cho người dùng (#18).
      * Lỗi nghiệp vụ (câu tiếng Việt do service ném ra) được hiển thị nguyên văn;
      * lỗi hệ thống (SQL, đường dẫn file...) chỉ ghi log, người dùng thấy câu chung.

@@ -58,7 +58,7 @@ const Edit = ({ lichSuBaoDuong, thietBis }) => {
                                     optionFilterProp="label"
                                     options={thietBis.map(tb => ({ 
                                         value: tb.id, 
-                                        label: `${tb.ma_thiet_bi} - ${tb.ten_thiet_bi}${tb.phong ? ` (${tb.phong.ten_phong})` : ''}` 
+                                        label: `${tb.ma_thiet_bi} - ${tb.ten_thiet_bi}${tb.phong ? ` (${tb.phong.ten_phong})` : ''}${tb.trang_thai_du_lieu === 'lich_su' ? ' — thông tin cũ (đã lưu lịch sử)' : ''}`
                                     }))}
                                 />
                             </Form.Item>

@@ -26,7 +26,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $filters = $request->only(['search', 'role', 'per_page']);
-        $users = $this->userService->getAllPaginated($filters, (int)$request->input('per_page', 10));
+        $users = $this->userService->getAllPaginated($filters, $this->perPage(10));
 
         return Inertia::render('User/Index', [
             'users'   => $users,

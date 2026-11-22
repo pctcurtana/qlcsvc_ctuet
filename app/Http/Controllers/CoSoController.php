@@ -42,7 +42,7 @@ class CoSoController extends Controller
     {
         try {
             $filters = $request->only(['search', 'trang_thai', 'per_page']);
-            $coSos = $this->coSoService->getAllPaginated($filters, (int)$request->input('per_page', 10));
+            $coSos = $this->coSoService->getAllPaginated($filters, $this->perPage(10));
 
             return Inertia::render('CoSo/Index', [
                 'coSos' => $coSos,

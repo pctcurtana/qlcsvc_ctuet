@@ -31,7 +31,7 @@ class QuanLyQrController extends Controller
     public function index(Request $request)
     {
         $activeTab = $request->input('tab', 'phong');
-        $perPage   = (int) $request->input('per_page', 10);
+        $perPage   = $this->perPage(10);
 
         // Filters chung cho cả 2 tab
         $filters = $request->only(['search', 'co_so_id', 'khu_nha_id', 'phong_id', 'per_page', 'tab']);

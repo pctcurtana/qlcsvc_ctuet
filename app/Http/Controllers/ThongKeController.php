@@ -119,7 +119,7 @@ class ThongKeController extends Controller
     {
         try {
             $filters = $request->only(['search', 'co_so_id', 'khu_nha_id']);
-            $perPage = (int) $request->input('per_page', 10);
+            $perPage = $this->perPage(10);
 
             $data = $this->thongKeService->paginateChiTietPhong($filters, $perPage);
 
@@ -140,7 +140,7 @@ class ThongKeController extends Controller
     {
         try {
             $filters = $request->only(['search', 'co_so_id', 'khu_nha_id', 'phong_id']);
-            $perPage = (int) $request->input('per_page', 10);
+            $perPage = $this->perPage(10);
 
             $data = $this->thongKeService->paginateChiTietThietBi($filters, $perPage);
 

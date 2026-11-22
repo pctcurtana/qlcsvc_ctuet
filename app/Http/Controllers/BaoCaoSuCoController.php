@@ -176,7 +176,7 @@ class BaoCaoSuCoController extends Controller
     public function index(Request $request)
     {
         $filters = $request->only(['search', 'phong_id', 'muc_do', 'trang_thai', 'dot_id', 'per_page']);
-        $baoCaos = $this->baoCaoService->getAllPaginated($filters, (int)$request->input('per_page', 15));
+        $baoCaos = $this->baoCaoService->getAllPaginated($filters, $this->perPage(15));
         $stats   = $this->baoCaoService->getStats();
         $dots    = $this->dotKiemTraService->getAllForDropdown();
 

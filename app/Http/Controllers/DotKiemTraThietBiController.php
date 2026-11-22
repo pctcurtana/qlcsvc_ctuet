@@ -21,7 +21,7 @@ class DotKiemTraThietBiController extends Controller
     public function index(Request $request)
     {
         $filters = $request->only(['search', 'trang_thai', 'per_page']);
-        $dotKiemTras = $this->dotKiemTraService->getAllPaginated($filters, (int)$request->input('per_page', 10));
+        $dotKiemTras = $this->dotKiemTraService->getAllPaginated($filters, $this->perPage(10));
         $stats = $this->dotKiemTraService->getStats();
 
         return Inertia::render('DotKiemTraThietBi/Index', [

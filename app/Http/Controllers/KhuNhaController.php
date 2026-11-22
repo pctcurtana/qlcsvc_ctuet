@@ -49,7 +49,7 @@ class KhuNhaController extends Controller
     {
         try {
             $filters = $request->only(['search', 'co_so_id', 'loai_khu_nha', 'per_page']);
-            $khuNhas = $this->khuNhaService->getAllPaginated($filters, (int)$request->input('per_page', 10));
+            $khuNhas = $this->khuNhaService->getAllPaginated($filters, $this->perPage(10));
             $coSos = $this->coSoService->getActiveCoSos();
 
             return Inertia::render('KhuNha/Index', [

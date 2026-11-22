@@ -52,7 +52,7 @@ class PhongController extends Controller
     {
         try {
             $filters = $request->only(['search', 'khu_nha_id', 'loai_phong', 'tang', 'per_page']);
-            $phongs = $this->phongService->getAllPaginated($filters, (int)$request->input('per_page', 10));
+            $phongs = $this->phongService->getAllPaginated($filters, $this->perPage(10));
             $khuNhas = $this->khuNhaService->getActiveKhuNhas();
             
             // Lấy danh sách tầng unique
