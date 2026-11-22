@@ -108,6 +108,8 @@ class BaoCaoSuCoController extends Controller
             'token'             => $token,
             'lichSuDangSuaChua' => $lichSuDangSua,
             'coPhienDangSua'    => $coPhienDangSua,
+            // Để form khoá lựa chọn "định kỳ" khi không có đợt đang mở (#27)
+            'dotDangMo'         => optional($this->dotKiemTraService->getActiveDot())->only(['id', 'ten_dot', 'ngay_bat_dau', 'ngay_ket_thuc']),
         ]);
     }
 
@@ -129,7 +131,7 @@ class BaoCaoSuCoController extends Controller
             $activeDot = $this->dotKiemTraService->getActiveDot();
             if (!$activeDot) {
                 return back()->withErrors([
-                    'hinh_thuc_sua_chua' => 'Hiện chưa có đợt quản lý active từ admin để ghi nhận sửa chữa định kỳ.',
+                    'hinh_thuc_sua_chua' => 'Hiện không có đợt kiểm tra định kỳ nào đang mở (chưa bật hoặc đã hết hạn). Vui lòng chọn "Sửa chữa đột xuất" hoặc nhờ quản trị viên mở đợt.',
                 ])->withInput();
             }
             $dotKiemTraThietBiId = $activeDot->id;

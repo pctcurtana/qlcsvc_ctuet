@@ -91,7 +91,12 @@ class DotKiemTraThietBiRepository implements DotKiemTraThietBiRepositoryInterfac
      */
     public function getActiveDot(): ?DotKiemTraThietBi
     {
-        return $this->model->where('is_active', true)->latest('id')->first();
+        // Đợt đang bật VÀ còn trong thời gian (#27): quên tắt đợt đã hết hạn thì không nhận phiếu định kỳ nữa
+        $homNay = now()->toDateString();
+        return $this->model->where('is_active', true)
+            ->where(function ($q) use ($homNay) { $q->whereNull('ngay_bat_dau')->orWhere('ngay_bat_dau', '<=', $homNay); })
+            ->where(function ($q) use ($homNay) { $q->whereNull('ngay_ket_thuc')->orWhere('ngay_ket_thuc', '>=', $homNay); })
+            ->latest('id')->first();
     }
 
     /**

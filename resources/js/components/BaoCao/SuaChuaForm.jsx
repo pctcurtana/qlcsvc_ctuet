@@ -46,7 +46,15 @@ const extractNoiDungParts = (noiDung = '') => {
     };
 };
 
-const SuaChuaForm = ({ thietBi, soLanSuaChua, token, lichSuDangSuaChua, coPhienDangSua }) => {
+const ngayVN = (d) => (d ? String(d).slice(0, 10).split('-').reverse().join('/') : '…');
+
+const SuaChuaForm = ({ thietBi, soLanSuaChua, token, lichSuDangSuaChua, coPhienDangSua, dotDangMo }) => {
+    // Không có đợt đang mở → khoá "định kỳ" để không phải điền xong mới bị từ chối (#27)
+    const hinhThucOptions = HINH_THUC_SUA_CHUA.map((o) => (
+        o.value === 'dinh_ky_kiem_tra' && !dotDangMo
+            ? { ...o, disabled: true, label: `${o.label} (không có đợt đang mở)` }
+            : o
+    ));
     const { flash, errors: serverErrors, auth } = usePage().props;
     const [form] = Form.useForm();
     const [submitting, setSubmitting] = useState(false);
@@ -313,12 +321,15 @@ const SuaChuaForm = ({ thietBi, soLanSuaChua, token, lichSuDangSuaChua, coPhienD
                                         label={<Text strong>Hình thức sửa chữa <span style={{ color: 'red' }}>*</span></Text>}
                                         name="hinh_thuc_sua_chua"
                                         rules={[{ required: true, message: 'Vui lòng chọn hình thức sửa chữa' }]}
+                                        extra={dotDangMo
+                                            ? `Đợt đang mở: ${dotDangMo.ten_dot} (${ngayVN(dotDangMo.ngay_bat_dau)} – ${ngayVN(dotDangMo.ngay_ket_thuc)})`
+                                            : 'Hiện không có đợt kiểm tra định kỳ nào đang mở, chỉ ghi được sửa chữa đột xuất.'}
                                     >
                                         <Select
                                             size="large"
                                             placeholder="Chọn hình thức sửa chữa"
                                             style={{ borderRadius: 10 }}
-                                            options={HINH_THUC_SUA_CHUA}
+                                            options={hinhThucOptions}
                                         />
                                     </Form.Item>
                                 </Col>
