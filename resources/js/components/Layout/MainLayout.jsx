@@ -276,13 +276,20 @@ const MainLayout = ({ children }) => {
                 trigger={null}
                 theme="light"
                 collapsible
-                collapsed={collapsed}
+                // Mobile: giữ nguyên bề rộng, trượt bằng transform (GPU) thay vì co giãn width → không tính lại layout menu mỗi khung hình
+                collapsed={isMobile ? false : collapsed}
                 className="custom-sidebar overflow-auto h-screen fixed left-0 top-0 bottom-0 transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
                 style={{
                     backgroundColor: 'rgba(255, 255, 255, 0.25)',
                     backdropFilter: 'blur(24px)',
                     WebkitBackdropFilter: 'blur(24px)',
-                    zIndex: isMobile ? 1001 : undefined,
+                    ...(isMobile && {
+                        zIndex: 1001,
+                        transform: collapsed ? 'translateX(-100%)' : 'translateX(0)',
+                        visibility: collapsed ? 'hidden' : 'visible', // đóng rồi thì không còn tab tới được
+                        transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1), visibility 0.25s',
+                        willChange: 'transform',
+                    }),
                 }}
             >
                 <div className={`custom-sidebar-logo-container ${collapsed ? 'justify-center' : 'justify-start pl-4'}`}>
