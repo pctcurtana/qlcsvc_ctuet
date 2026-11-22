@@ -7,8 +7,10 @@ use App\Models\BaoCaoSuCo;
 use App\Models\Phong;
 use App\Models\User;
 use App\Notifications\BaoCaoSuCoMoi;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
@@ -86,7 +88,24 @@ class BaoCaoSuCoService
                 })
                 ->get();
 
-            Notification::send($nguoiNhan, new BaoCaoSuCoMoi($baoCao));
+            // Lưu chuông cho mọi người trước: Pusher lỗi ở bước sau không làm mất thông báo của ai
+            $thongBao = new BaoCaoSuCoMoi($baoCao);
+            Notification::send($nguoiNhan, $thongBao);
+        } catch (\Throwable $e) {
+            report($e);
+            return;
+        }
+
+        try {
+            // Gộp kênh: 1 lần gọi Pusher cho tối đa 100 người nhận, thay vì 1 lần mỗi người
+            $payload = $thongBao->toArray(null) + ['created_at' => now()->toIso8601String()];
+            $nguoiNhan->chunk(100)->each(function ($nhom) use ($payload) {
+                Broadcast::connection()->broadcast(
+                    $nhom->map(fn ($u) => new PrivateChannel('App.Models.User.' . $u->id))->values()->all(),
+                    'bao-cao-su-co.moi',
+                    $payload
+                );
+            });
         } catch (\Throwable $e) {
             report($e);
         }

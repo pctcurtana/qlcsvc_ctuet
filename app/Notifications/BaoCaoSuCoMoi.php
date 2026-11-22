@@ -3,13 +3,12 @@
 namespace App\Notifications;
 
 use App\Models\BaoCaoSuCo;
-use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Str;
 
 /**
- * Thông báo có báo cáo sự cố mới: lưu DB (chuông) + broadcast qua kênh riêng App.Models.User.{id}.
- * Không ShouldQueue và broadcast chạy 'sync' (giống ImportProcessed/ThongKeUpdated) để production không cần queue worker.
+ * Thông báo có báo cáo sự cố mới: chỉ lưu DB (chuông).
+ * Phần realtime do BaoCaoSuCoService gửi gộp 1 lần qua Pusher (sự kiện 'bao-cao-su-co.moi' trên App.Models.User.{id}).
  */
 class BaoCaoSuCoMoi extends Notification
 {
@@ -23,7 +22,7 @@ class BaoCaoSuCoMoi extends Notification
 
     public function via($notifiable)
     {
-        return ['database', 'broadcast'];
+        return ['database'];
     }
 
     public function toArray($notifiable)
@@ -38,12 +37,5 @@ class BaoCaoSuCoMoi extends Notification
             'nguoi_bao'  => $bc->ten_nguoi_bao,
             'url'        => '/bao-cao-su-co',
         ];
-    }
-
-    public function toBroadcast($notifiable)
-    {
-        return (new BroadcastMessage($this->toArray($notifiable) + [
-            'created_at' => now()->toIso8601String(),
-        ]))->onConnection('sync');
     }
 }

@@ -38,6 +38,8 @@ return [
             'options' => [
                 'cluster' => env('PUSHER_APP_CLUSTER'),
                 'useTLS' => true,
+                // Pusher chạy đồng bộ trong request: mất mạng chỉ treo tối đa 3s thay vì 30s mặc định
+                'timeout' => 3,
             ],
         ],
 

@@ -51,7 +51,7 @@ const ThongBaoBell = () => {
     };
 
     const moThongBao = async (item) => {
-        if (!item.read_at) {
+        if (!item.read_at && item.id) {
             try {
                 const { data } = await window.axios.post(`/thong-bao/${item.id}/da-doc`);
                 setChuaDoc(data.chuaDoc);

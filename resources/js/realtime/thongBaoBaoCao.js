@@ -30,7 +30,8 @@ let audioCtx = null;
 let lanKeuCuoi = 0;
 let nguonReng = null;      // chuông đang reo (tab ẩn)
 let bufferReng = null;
-let lanCoTabDangXem = 0; // lần gần nhất một tab đang mở báo "đã thấy"
+let lanCoTabDangXem = 0; // lần gần nhất một tab đang hiển thị nhận báo cáo (và tự reo)
+let lanNguoiDungDaXem = 0; // lần gần nhất người dùng thao tác / mở tab ở bất kỳ tab nào
 
 // ─── Đăng ký kênh ─────────────────────────────────────────────────────────
 
@@ -42,15 +43,10 @@ export function dangKy(userId) {
     if (userIdDaDangKy !== null) huyDangKy(); // đổi tài khoản: rời kênh cũ trước
 
     userIdDaDangKy = id;
-    window.Echo.private(kenhCuaUser(id)).notification((tb) => {
-        if (tb.type && !tb.type.endsWith('BaoCaoSuCoMoi')) return;
-        // Đang xem tab: kêu 1 tiếng. Tab ẩn / thu nhỏ: reo liên tục đến khi mở tab.
-        if (document.hidden) {
-            batDauReng();
-        } else {
-            phatAmThanh();
-            nguoiDungDaXem(); // tab này đang được xem: các tab ẩn khác không cần reo
-        }
+    // Server gửi gộp 1 lần cho mọi người nhận nên payload không có id thông báo riêng (chuông tải lại khi mở)
+    window.Echo.private(kenhCuaUser(id)).listen('.bao-cao-su-co.moi', (tb) => {
+        // Reo liên tục đến khi người dùng thao tác (click / bấm phím) hoặc mở lại tab ẩn
+        batDauReng();
         hienToast(tb);
         window.dispatchEvent(new CustomEvent(SU_KIEN_BAO_CAO_MOI, { detail: tb }));
     });
@@ -211,16 +207,28 @@ function layBufferReng(ctx) {
 
 function batDauReng() {
     if (nguonReng || !amThanhDangBat()) return;
-    // Chờ chút: nếu có tab khác đang được xem thì nó sẽ báo "đã thấy" → không reo
-    setTimeout(() => khiPhatDuoc((ctx) => {
-        if (nguonReng || !document.hidden || Date.now() - lanCoTabDangXem < 3000) return;
+    const luc = Date.now();
+    const phat = (ctx) => {
+        // Người dùng đã thao tác sau khi báo cáo đến (vd. cú click mở khoá âm thanh) → không reo nữa
+        if (nguonReng || lanNguoiDungDaXem > luc) return;
         const src = ctx.createBufferSource();
         src.buffer = layBufferReng(ctx);
         src.loop = true;
         src.connect(ctx.destination);
         src.start();
         nguonReng = src;
-    }), 1000);
+    };
+    if (!document.hidden) {
+        // Tab đang hiển thị reo; báo các tab ẩn khác khỏi reo chồng
+        guiGiuaCacTab('dang-xem');
+        khiPhatDuoc(phat);
+        return;
+    }
+    // Tab ẩn: chờ chút, nếu có tab đang hiển thị đã nhận reo thì thôi
+    setTimeout(() => {
+        if (Date.now() - lanCoTabDangXem < 3000) return;
+        khiPhatDuoc(phat);
+    }, 1000);
 }
 
 function dungReng() {
@@ -239,22 +247,28 @@ let kenhGiuaCacTab = null;
 try {
     kenhGiuaCacTab = new BroadcastChannel('qlcsvc-thong-bao');
     kenhGiuaCacTab.onmessage = (e) => {
-        if (e.data === 'da-xem') {
-            lanCoTabDangXem = Date.now();
-            dungReng();
-        }
+        // 'dang-xem' chỉ do tab đã đăng nhập vừa nhận báo cáo khi đang hiển thị → mới được chặn reo.
+        // 'da-xem' (mở/focus tab bất kỳ, kể cả trang QR) chỉ dừng tiếng đang reo, không chặn báo cáo sắp tới.
+        if (e.data === 'dang-xem') lanCoTabDangXem = Date.now();
+        if (e.data === 'da-xem') lanNguoiDungDaXem = Date.now();
+        if (e.data === 'dang-xem' || e.data === 'da-xem') dungReng();
     };
 } catch (e) {
     // Trình duyệt cũ không có BroadcastChannel: mỗi tab chỉ ngừng khi chính nó được mở
 }
 
-function nguoiDungDaXem() {
-    dungReng();
+function guiGiuaCacTab(tin) {
     try {
-        kenhGiuaCacTab?.postMessage('da-xem');
+        kenhGiuaCacTab?.postMessage(tin);
     } catch (e) {
         // kênh đã đóng
     }
+}
+
+function nguoiDungDaXem() {
+    lanNguoiDungDaXem = Date.now();
+    dungReng();
+    guiGiuaCacTab('da-xem');
 }
 
 if (typeof document !== 'undefined') {
@@ -264,6 +278,9 @@ if (typeof document !== 'undefined') {
         if (!document.hidden) nguoiDungDaXem();
     });
     window.addEventListener('focus', nguoiDungDaXem);
+    // Đang xem tab mà vắng mặt thì chuông reo mãi; người dùng click / bấm phím = đã biết → ngừng
+    document.addEventListener('pointerdown', nguoiDungDaXem, true);
+    document.addEventListener('keydown', nguoiDungDaXem, true);
 }
 
 /** Phát thử (nút bật âm thanh): bỏ qua chống kêu dồn. */
