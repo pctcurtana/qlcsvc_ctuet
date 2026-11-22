@@ -25,7 +25,13 @@ const themeHeThong = {
         Table: {
             colorBgContainer: 'transparent',
             colorHeaderBg: 'rgba(255, 255, 255, 0.45)',
-            colorRowHover: 'rgba(36, 67, 128, 0.05)',
+            // antd trộn các màu dưới đây lên colorBgContainer; nền 'transparent' làm chúng thành #000 → phải đặt màu đặc
+            rowHoverBg: '#f0f4fa',
+            bodySortBg: '#f8fafc',
+            footerBg: '#f8fafc',
+            headerSortActiveBg: '#eaf0f8',
+            headerSortHoverBg: '#eaf0f8',
+            fixedHeaderSortActiveBg: '#eaf0f8',
         },
     },
 };
