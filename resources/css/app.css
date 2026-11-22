@@ -674,6 +674,22 @@ textarea,
   border-color: rgba(148, 163, 184, .45) !important;
 }
 
+/* Chuông thông báo trên điện thoại: chuông không nằm sát mép phải nên popover canh theo nó bị tràn trái → trải ngang màn hình */
+@media (max-width: 576px) {
+  .thong-bao-popover.ant-popover {
+    left: 16px !important;
+    right: auto !important;
+    width: calc(100vw - 32px);
+    max-width: none;
+  }
+  .thong-bao-popover .thong-bao-noi-dung {
+    width: auto !important;
+  }
+  .thong-bao-popover .ant-popover-arrow {
+    display: none;
+  }
+}
+
 /* --- Tối ưu hiệu năng trên trình duyệt mobile --- */
 @media (max-width: 768px) {
 

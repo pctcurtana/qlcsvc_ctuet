@@ -81,7 +81,7 @@ const ThongBaoBell = () => {
     };
 
     const noiDung = (
-        <div style={{ width: 340, maxWidth: 'calc(100vw - 32px)' }}>
+        <div className="thong-bao-noi-dung" style={{ width: 340, maxWidth: 'calc(100vw - 32px)' }}>
             <div className="flex items-center justify-between mb-2">
                 <Text strong>Thông báo</Text>
                 <div className="flex items-center gap-1">
@@ -146,6 +146,7 @@ const ThongBaoBell = () => {
             content={noiDung}
             trigger="click"
             placement="bottomRight"
+            rootClassName="thong-bao-popover"
             open={mo}
             onOpenChange={(o) => { setMo(o); if (o) taiDanhSach(); }}
         >
