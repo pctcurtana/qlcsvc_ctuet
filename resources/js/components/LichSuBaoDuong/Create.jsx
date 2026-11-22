@@ -77,6 +77,7 @@ const Create = ({ thietBis, thietBiId }) => {
                                     size="large"
                                     placeholder="Chọn ngày bảo dưỡng"
                                     format="DD/MM/YYYY"
+                                    disabledDate={(d) => d && d.isAfter(dayjs(), 'day')}
                                 />
                             </Form.Item>
                         </Col>

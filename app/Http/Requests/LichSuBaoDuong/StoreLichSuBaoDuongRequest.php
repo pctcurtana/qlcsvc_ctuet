@@ -25,7 +25,7 @@ class StoreLichSuBaoDuongRequest extends FormRequest
     {
         return [
             'thiet_bi_id' => 'required|exists:thiet_bis,id',
-            'ngay_bao_duong' => 'required|date',
+            'ngay_bao_duong' => 'required|date|before_or_equal:today',
             'loai_bao_duong' => 'required|in:dinh_ky,sua_chua,thay_the',
             'noi_dung' => 'required|string',
             'chi_phi' => 'nullable|numeric|min:0',
@@ -64,6 +64,7 @@ class StoreLichSuBaoDuongRequest extends FormRequest
     public function messages()
     {
         return [
+            'ngay_bao_duong.before_or_equal' => 'Ngày bảo dưỡng không được ở tương lai.',
             'thiet_bi_id.exists' => 'Thiết bị không tồn tại trong hệ thống.',
             'chi_phi.min' => 'Chi phí phải lớn hơn hoặc bằng 0.',
         ];

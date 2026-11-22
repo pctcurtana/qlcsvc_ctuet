@@ -120,11 +120,13 @@ class BaoCaoSuCoController extends Controller
         $validated = $request->validate([
             'hu_hong_mo_ta'  => 'required|string|min:5|max:500',
             'noi_dung'       => 'required|string|min:5|max:1000',
-            'ngay_bao_duong' => 'required|date',
+            'ngay_bao_duong' => 'required|date|before_or_equal:today',
             'chi_phi'        => 'nullable|numeric|gte:0',
             'trang_thai'     => 'required|in:dang_sua_chua,hoan_thanh',
             'loai_bao_duong' => 'required|in:dinh_ky,sua_chua,thay_the',
             'hinh_thuc_sua_chua' => 'required|in:dot_xuat,dinh_ky_kiem_tra',
+        ], [
+            'ngay_bao_duong.before_or_equal' => 'Ngày sửa chữa không được ở tương lai.',
         ]);
         $dotKiemTraThietBiId = null;
         if ($validated['hinh_thuc_sua_chua'] === 'dinh_ky_kiem_tra') {

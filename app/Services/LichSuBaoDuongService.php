@@ -159,6 +159,12 @@ class LichSuBaoDuongService
             return;
         }
 
+        // Nhập bù phiếu cũ (ngày sớm hơn) không được kéo lùi ngày bảo dưỡng cuối / tiếp theo (#25)
+        if ($thietBi->ngay_bao_duong_cuoi
+            && Carbon::parse($ngayBaoDuong)->lt(Carbon::parse($thietBi->ngay_bao_duong_cuoi)->startOfDay())) {
+            return;
+        }
+
         $updateData = [
             'ngay_bao_duong_cuoi' => $ngayBaoDuong,
         ];
