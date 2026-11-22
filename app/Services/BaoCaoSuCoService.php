@@ -5,8 +5,12 @@ namespace App\Services;
 use App\Contracts\Repositories\BaoCaoSuCoRepositoryInterface;
 use App\Models\BaoCaoSuCo;
 use App\Models\Phong;
+use App\Models\User;
+use App\Notifications\BaoCaoSuCoMoi;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class BaoCaoSuCoService
 {
@@ -58,7 +62,34 @@ class BaoCaoSuCoService
             }
         }
 
-        return $this->repository->create($data);
+        $baoCao = $this->repository->create($data);
+
+        // Chỉ báo khi dữ liệu đã commit (không transaction thì chạy ngay)
+        DB::afterCommit(function () use ($baoCao) {
+            $this->thongBaoBaoCaoMoi($baoCao);
+        });
+
+        return $baoCao;
+    }
+
+    /**
+     * Gửi thông báo realtime + lưu chuông cho admin và người có quyền xem "Báo cáo sự cố".
+     * Lỗi Pusher/DB chỉ ghi log: người báo sự cố vẫn gửi thành công.
+     */
+    protected function thongBaoBaoCaoMoi(BaoCaoSuCo $baoCao): void
+    {
+        try {
+            $nguoiNhan = User::where('role', 'admin')
+                ->orWhereHas('permissions', function ($q) {
+                    $q->where('can_view', true)
+                      ->whereHas('screen', function ($s) { $s->where('code', 'bao-cao-su-co'); });
+                })
+                ->get();
+
+            Notification::send($nguoiNhan, new BaoCaoSuCoMoi($baoCao));
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     /**

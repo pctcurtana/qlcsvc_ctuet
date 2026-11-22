@@ -24,6 +24,8 @@ import {
 } from '@ant-design/icons';
 
 import ImportNotificationListener from '../Common/ImportNotificationListener';
+import ThongBaoBell from '../Common/ThongBaoBell';
+import { dangKy as dangKyThongBao, huyDangKy as huyDangKyThongBao } from '../../realtime/thongBaoBaoCao';
 
 const { Header, Sider, Content } = Layout;
 const { confirm } = Modal;
@@ -112,6 +114,13 @@ const MainLayout = ({ children }) => {
         if (props.flash?.error) message.error(props.flash.error);
     }, [props.flash]);
 
+    // Thông báo báo cáo sự cố mới: module tự bỏ qua nếu đã đăng ký cho đúng user này
+    // (MainLayout gắn lại mỗi lần chuyển trang nên không tự hủy ở cleanup)
+    useEffect(() => {
+        if (user?.id) dangKyThongBao(user.id);
+        else huyDangKyThongBao();
+    }, [user?.id]);
+
     const handleLogout = () => {
         confirm({
             title: 'Xác nhận đăng xuất',
@@ -121,6 +130,7 @@ const MainLayout = ({ children }) => {
             okType: 'danger',
             cancelText: 'Hủy',
             onOk() {
+                huyDangKyThongBao();
                 router.post('/logout');
             },
         });
@@ -332,6 +342,7 @@ const MainLayout = ({ children }) => {
                         {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                     </div>
                     <Space size="large" className="m-0">
+                        <ThongBaoBell />
                         <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" trigger={['click']}>
                             <Space
                                 className="cursor-pointer px-2 rounded-lg transition-all duration-[180ms] ease-in-out hover:bg-[#244380]/[0.08]"

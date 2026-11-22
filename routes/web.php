@@ -45,6 +45,11 @@ Route::middleware('auth')->group(function () {
     // Dashboard
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Chuông thông báo (chỉ thông báo của chính mình)
+    Route::get('/thong-bao', [\App\Http\Controllers\ThongBaoController::class, 'index'])->name('thong-bao.index');
+    Route::post('/thong-bao/da-doc-tat-ca', [\App\Http\Controllers\ThongBaoController::class, 'daDocTatCa'])->name('thong-bao.da-doc-tat-ca');
+    Route::post('/thong-bao/{id}/da-doc', [\App\Http\Controllers\ThongBaoController::class, 'daDoc'])->name('thong-bao.da-doc');
+
     // ==================== Quản lý Cơ sở ====================
     // Routes create phải đặt TRƯỚC routes có parameter {id}
     Route::middleware('permission:co-so,can_create')->group(function () {

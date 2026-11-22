@@ -49,6 +49,8 @@ class HandleInertiaRequests extends Middleware
             ],
             'userPermissions' => $user ? $this->getUserPermissions($user) : [],
             'menuScreens' => $user ? $this->getMenuScreens($user) : [],
+            // Số thông báo chưa đọc cho chuông (1 truy vấn COUNT mỗi lần tải trang)
+            'thongBaoChuaDoc' => fn () => $user ? $user->unreadNotifications()->count() : 0,
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
