@@ -22,6 +22,7 @@ class BaoCaoSuCo extends Model
         'ip_address',
         'nguoi_hoan_thanh',
         'ngay_hoan_thanh',
+        'dot_kiem_tra_thiet_bi_id',
     ];
 
     protected $casts = [
@@ -38,15 +39,11 @@ class BaoCaoSuCo extends Model
         return $this->belongsTo(ThietBi::class, 'thiet_bi_id');
     }
 
+    /**
+     * Đợt của phiếu đã sửa sự cố này: chỉ có khi sửa định kỳ; sửa đột xuất / chưa sửa → null (#15).
+     */
     public function dotKiemTraThietBi()
     {
-        return $this->hasOneThrough(
-            DotKiemTraThietBi::class,
-            LichSuBaoDuong::class,
-            'thiet_bi_id',
-            'id',
-            'thiet_bi_id',
-            'dot_kiem_tra_thiet_bi_id'
-        )->latest('lich_su_bao_duongs.id');
+        return $this->belongsTo(DotKiemTraThietBi::class, 'dot_kiem_tra_thiet_bi_id');
     }
 }

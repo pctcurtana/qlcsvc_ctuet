@@ -81,7 +81,7 @@ class LichSuBaoDuongService
             if ($data['trang_thai'] === 'hoan_thanh') {
                 $this->updateThietBiMaintenanceInfo($data['thiet_bi_id'], $data['ngay_bao_duong']);
             }
-            $this->dongBoBaoCaoSuCo($data, null);
+            $this->dongBoBaoCaoSuCo($data, null, $lichSu->dot_kiem_tra_thiet_bi_id);
 
             return $lichSu;
         });
@@ -106,7 +106,7 @@ class LichSuBaoDuongService
             if ($data['trang_thai'] === 'hoan_thanh' && $oldStatus !== 'hoan_thanh') {
                 $this->updateThietBiMaintenanceInfo($data['thiet_bi_id'], $data['ngay_bao_duong']);
             }
-            $this->dongBoBaoCaoSuCo($data, $oldStatus);
+            $this->dongBoBaoCaoSuCo($data, $oldStatus, $updatedLichSu->dot_kiem_tra_thiet_bi_id);
 
             return $updatedLichSu;
         });
@@ -120,8 +120,9 @@ class LichSuBaoDuongService
      * Đồng bộ báo cáo sự cố đang mở của thiết bị theo phiếu (dùng chung cho form admin và QR):
      * - chuyển sang "hoàn thành" → đóng các báo cáo đang mở;
      * - "đang thực hiện" → báo cáo chuyển sang "đang sửa chữa".
+     * Báo cáo ghi lại đợt của phiếu: định kỳ → có đợt, đột xuất → null (#15).
      */
-    protected function dongBoBaoCaoSuCo(array $data, ?string $oldStatus): void
+    protected function dongBoBaoCaoSuCo(array $data, ?string $oldStatus, ?int $dotId): void
     {
         $nguoi = $data['nguoi_thuc_hien'] ?? null;
         if (!$nguoi) {
@@ -129,9 +130,9 @@ class LichSuBaoDuongService
         }
 
         if ($data['trang_thai'] === 'hoan_thanh' && $oldStatus !== 'hoan_thanh') {
-            $this->baoCaoSuCoService->completeReportsForDevice($data['thiet_bi_id'], $nguoi);
+            $this->baoCaoSuCoService->completeReportsForDevice($data['thiet_bi_id'], $nguoi, $dotId);
         } elseif ($data['trang_thai'] === 'dang_thuc_hien') {
-            $this->baoCaoSuCoService->updateReportsStatusForDevice($data['thiet_bi_id'], 'dang_sua_chua', $nguoi);
+            $this->baoCaoSuCoService->updateReportsStatusForDevice($data['thiet_bi_id'], 'dang_sua_chua', $nguoi, $dotId);
         }
     }
 

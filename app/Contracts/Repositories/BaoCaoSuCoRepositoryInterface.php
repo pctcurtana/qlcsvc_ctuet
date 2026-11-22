@@ -16,6 +16,6 @@ interface BaoCaoSuCoRepositoryInterface
     public function delete(int $id): bool;
     public function countByTrangThai(): array;
     public function hasOpenReportForDevice(int $thietBiId): bool;
-    public function completeOpenReportsForDevice(int $thietBiId, string $nguoiHoanThanh): int;
-    public function updateStatusForDevice(int $thietBiId, string $trangThai, string $nguoiThucHien): int;
+    public function completeOpenReportsForDevice(int $thietBiId, string $nguoiHoanThanh, ?int $dotId = null): int;
+    public function updateStatusForDevice(int $thietBiId, string $trangThai, string $nguoiThucHien, ?int $dotId = null): int;
 }

@@ -65,17 +65,17 @@ class BaoCaoSuCoService
      * Tự động đánh dấu hoàn thành tất cả báo cáo đang chờ của thiết bị
      * khi kỹ thuật viên ghi nhận hoàn thành sửa chữa qua QR.
      */
-    public function completeReportsForDevice(int $thietBiId, string $nguoiHoanThanh): int
+    public function completeReportsForDevice(int $thietBiId, string $nguoiHoanThanh, ?int $dotId = null): int
     {
-        return $this->repository->completeOpenReportsForDevice($thietBiId, $nguoiHoanThanh);
+        return $this->repository->completeOpenReportsForDevice($thietBiId, $nguoiHoanThanh, $dotId);
     }
 
     /**
      * Cập nhật trạng thái đang sửa chữa cho các báo cáo đang chờ của thiết bị.
      */
-    public function updateReportsStatusForDevice(int $thietBiId, string $trangThai, string $nguoiThucHien): int
+    public function updateReportsStatusForDevice(int $thietBiId, string $trangThai, string $nguoiThucHien, ?int $dotId = null): int
     {
-        return $this->repository->updateStatusForDevice($thietBiId, $trangThai, $nguoiThucHien);
+        return $this->repository->updateStatusForDevice($thietBiId, $trangThai, $nguoiThucHien, $dotId);
     }
 
     public function delete(int $id): bool

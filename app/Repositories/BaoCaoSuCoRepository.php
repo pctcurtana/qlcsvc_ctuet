@@ -40,12 +40,8 @@ class BaoCaoSuCoRepository implements BaoCaoSuCoRepositoryInterface
         }
 
         if (!empty($filters['dot_id'])) {
-            // Lọc qua bảng lich_su_bao_duongs (hasOneThrough)
-            $query->whereHas('thietBi', function ($q) use ($filters) {
-                $q->whereHas('lichSuBaoDuongs', function ($q2) use ($filters) {
-                    $q2->where('dot_kiem_tra_thiet_bi_id', $filters['dot_id']);
-                });
-            });
+            // Đợt đã lưu trên báo cáo lúc sửa (#15)
+            $query->where('dot_kiem_tra_thiet_bi_id', $filters['dot_id']);
         }
 
         return $query->latest()->paginate($perPage);
@@ -74,11 +70,8 @@ class BaoCaoSuCoRepository implements BaoCaoSuCoRepositoryInterface
         }
 
         if (!empty($filters['dot_id'])) {
-            $query->whereHas('thietBi', function ($q) use ($filters) {
-                $q->whereHas('lichSuBaoDuongs', function ($q2) use ($filters) {
-                    $q2->where('dot_kiem_tra_thiet_bi_id', $filters['dot_id']);
-                });
-            });
+            // Đợt đã lưu trên báo cáo lúc sửa (#15)
+            $query->where('dot_kiem_tra_thiet_bi_id', $filters['dot_id']);
         }
 
         return $query->latest()->get();
@@ -114,7 +107,7 @@ class BaoCaoSuCoRepository implements BaoCaoSuCoRepositoryInterface
             ->exists();
     }
 
-    public function completeOpenReportsForDevice(int $thietBiId, string $nguoiHoanThanh): int
+    public function completeOpenReportsForDevice(int $thietBiId, string $nguoiHoanThanh, ?int $dotId = null): int
     {
         return $this->model
             ->where('thiet_bi_id', $thietBiId)
@@ -123,10 +116,11 @@ class BaoCaoSuCoRepository implements BaoCaoSuCoRepositoryInterface
                 'trang_thai'       => 'hoan_thanh_sua_chua',
                 'nguoi_hoan_thanh' => $nguoiHoanThanh,
                 'ngay_hoan_thanh'  => now(),
+                'dot_kiem_tra_thiet_bi_id' => $dotId,
             ]);
     }
 
-    public function updateStatusForDevice(int $thietBiId, string $trangThai, string $nguoiThucHien): int
+    public function updateStatusForDevice(int $thietBiId, string $trangThai, string $nguoiThucHien, ?int $dotId = null): int
     {
         return $this->model
             ->where('thiet_bi_id', $thietBiId)
@@ -135,6 +129,7 @@ class BaoCaoSuCoRepository implements BaoCaoSuCoRepositoryInterface
                 'trang_thai'       => $trangThai,
                 'nguoi_hoan_thanh' => $nguoiThucHien,
                 'ngay_hoan_thanh'  => null,
+                'dot_kiem_tra_thiet_bi_id' => $dotId,
             ]);
     }
 
