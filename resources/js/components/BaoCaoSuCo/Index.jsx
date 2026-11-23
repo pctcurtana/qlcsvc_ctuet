@@ -92,7 +92,7 @@ const BaoCaoSuCoIndex = ({ baoCaos, stats, filters, dots }) => {
             },
         },
         {
-            title: 'Người báo',
+            title: 'Người báo',width: 110,
             render: (_, r) => (
                 <Space direction="vertical" size={2}>
                     <Text>{r.ten_nguoi_bao}</Text>
@@ -107,7 +107,7 @@ const BaoCaoSuCoIndex = ({ baoCaos, stats, filters, dots }) => {
                 : <Text type="secondary" style={{ fontSize: 12 }}><Tag color="red">Cơ sở vật chất khác</Tag></Text>,
         },
         {
-            title: 'Mức độ', dataIndex: 'muc_do', width: 110, align: 'center',
+            title: 'Mức độ', dataIndex: 'muc_do', width: 110,
             render: v => {
                 const m = MUC_DO_MAP[v] ?? { color: 'default', label: v };
                 return <Tag color={m.color}>{m.label}</Tag>;

@@ -154,7 +154,7 @@ const Index = ({ thietBis, phongs, coSos, filters }) => {
         {
             title: 'STT',
             key: 'index',
-            width: 60,
+            width: 70,
             align: 'center',
             render: (text, record, index) => (thietBis.current_page - 1) * thietBis.per_page + index + 1,
         },
@@ -176,9 +176,9 @@ const Index = ({ thietBis, phongs, coSos, filters }) => {
             title: 'Phòng',
             dataIndex: ['phong', 'ten_phong'],
             key: 'phong',
-            width: 150,
+            width: 200,
             ellipsis: true,
-            render: (text) => text || <Tag>Chưa phân bổ</Tag>,
+            render: (text) => text ||<Tag>Chưa có</Tag>,
         },
         {
             title: 'Mã phòng',
@@ -186,7 +186,7 @@ const Index = ({ thietBis, phongs, coSos, filters }) => {
             key: 'ma_phong',
             width: 110,
             ellipsis: true,
-            render: (text) => text || <Tag>Chưa phân bổ</Tag>,
+            render: (text) => text || <Tag>Chưa có</Tag>,
         },
         {
             title: 'Loại TB',

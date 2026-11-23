@@ -138,7 +138,7 @@ const Kho = ({ thietBis, stats, phongs, filters }) => {
             key: 'ma_phong',
             width: 120,
             ellipsis: true,
-            render: (text) => text || <Tag>Chưa phân bổ</Tag>,
+            render: (text) => text || <Tag>Chưa có</Tag>,
         },
         {
             title: 'Tên phòng',
@@ -146,7 +146,7 @@ const Kho = ({ thietBis, stats, phongs, filters }) => {
             key: 'ten_phong',
             width: 150,
             ellipsis: true,
-            render: (text) => text || <Tag>Chưa phân bổ</Tag>,
+            render: (text) => text || <Tag>Chưa có</Tag>,
         },
         {
             title: 'Loại',
