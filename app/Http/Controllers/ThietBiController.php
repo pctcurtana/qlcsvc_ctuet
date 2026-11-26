@@ -75,26 +75,6 @@ class ThietBiController extends Controller
     }
 
     /**
-     * Display thiết bị grouped by phòng
-     */
-    public function indexByPhong(Request $request)
-    {
-        try {
-            $filters = $request->only(['search', 'loai_thiet_bi', 'trang_thai', 'can_bao_duong']);
-            $groupedThietBis = $this->thietBiService->getGroupedByPhong($filters);
-            $phongs = $this->phongService->getActivePhongs();
-
-            return Inertia::render('ThietBi/IndexByPhong', [
-                'groupedThietBis' => $groupedThietBis,
-                'phongs' => $phongs,
-                'filters' => $filters
-            ]);
-        } catch (\Throwable $e) {
-            return redirect()->back()->with('error', $this->thongBaoLoi($e, 'Lỗi khi tải danh sách thiết bị'));
-        }
-    }
-
-    /**
      * Show the form for creating a new resource.
      */
     public function create()

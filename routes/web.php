@@ -127,7 +127,6 @@ Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     });
     Route::middleware('permission:thiet-bi,can_view')->group(function () {
         Route::get('/thiet-bi', [ThietBiController::class, 'index'])->name('thiet-bi.index');
-        Route::get('/thiet-bi-theo-phong', [ThietBiController::class, 'indexByPhong'])->name('thiet-bi.by-phong');
     });
     Route::middleware('permission:kho,can_view')->group(function () {
         Route::get('/kho', [ThietBiController::class, 'kho'])->name('kho.index');

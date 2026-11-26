@@ -318,11 +318,6 @@ const Index = ({ thietBis, phongs, coSos, filters }) => {
                         </Col>
                         <Col>
                             <Space>
-                                <Link href="/thiet-bi-theo-phong">
-                                    <Button icon={<SearchOutlined />} size="large">
-                                        Xem theo phòng
-                                    </Button>
-                                </Link>
                                 {perm.can_create && (
                                     <Link href="/thiet-bi/create">
                                         <Button type="primary" icon={<PlusOutlined />} size="large">

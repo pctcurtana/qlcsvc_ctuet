@@ -103,14 +103,6 @@ interface ThietBiRepositoryInterface
     public function getNeedMaintenance(): Collection;
 
     /**
-     * Lấy thiết bị được nhóm theo phòng
-     *
-     * @param array $filters
-     * @return Collection
-     */
-    public function getGroupedByPhong(array $filters = []): Collection;
-
-    /**
      * Lấy danh sách thiết bị lịch sử (đã lưu kho) có phân trang và filter
      *
      * @param array $filters

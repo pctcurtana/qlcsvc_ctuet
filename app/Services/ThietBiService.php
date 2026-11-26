@@ -282,48 +282,6 @@ class ThietBiService
     }
 
     /**
-     * Get all thiet bi grouped by phong
-     * 
-     * @param array $filters
-     * @return array
-     */
-    public function getGroupedByPhong(array $filters = []): array
-    {
-        $groupedThietBis = $this->thietBiRepository->getGroupedByPhong($filters);
-        
-        // Transform data to include phong information and statistics
-        $result = [];
-        
-        foreach ($groupedThietBis as $phongId => $thietBis) {
-            if ($thietBis->isEmpty()) {
-                continue;
-            }
-
-            $phong = $thietBis->first()->phong;
-            
-            // Calculate statistics for each phong
-            $tongSoLuong = $thietBis->count(); // Đếm số thiết bị (mỗi record = 1 máy)
-            $tongGiaTri = $thietBis->sum('gia_tri'); // Tổng giá trị
-
-            $result[] = [
-                'phong_id' => $phongId,
-                'phong' => $phong,
-                'thiet_bis' => $thietBis->values(),
-                'tong_so_luong' => $tongSoLuong,
-                'tong_gia_tri' => $tongGiaTri,
-                'so_thiet_bi' => $thietBis->count(),
-            ];
-        }
-
-        // Sort by phong name
-        usort($result, function($a, $b) {
-            return strcmp($a['phong']->ten_phong ?? '', $b['phong']->ten_phong ?? '');
-        });
-
-        return $result;
-    }
-
-    /**
      * Lấy danh sách thiết bị cho quản lý QR có phân trang (kèm phòng, khu nhà, cơ sở).
      */
     public function getQrPaginated(array $filters = [], int $perPage = 10): \Illuminate\Contracts\Pagination\LengthAwarePaginator
