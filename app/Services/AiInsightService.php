@@ -39,38 +39,63 @@ class AiInsightService
 
         $prompt = $this->buildPrompt($chartTitle, $chartType, $currentData, $previousData, $filters);
 
-        $response = Http::timeout(30)->post("{$this->apiUrl}?key={$apiKey}", [
-            'contents' => [
-                [
-                    'parts' => [
-                        ['text' => $prompt],
+        // 2 lần, mỗi lần tối đa 12s + nghỉ 1s → tổng < 30s (max_execution_time mặc định)
+        for ($attempt = 1; $attempt <= 2; $attempt++) {
+            if ($attempt > 1) {
+                sleep(1);
+            }
+
+            $response = Http::timeout(12)->post("{$this->apiUrl}?key={$apiKey}", [
+                'contents' => [
+                    [
+                        'parts' => [
+                            ['text' => $prompt],
+                        ],
                     ],
                 ],
-            ],
-            'generationConfig' => [
-                'temperature'     => 0.5,
-                'maxOutputTokens' => 3000,
-                'topP'            => 0.9,
-            ],
-        ]);
-
-        if ($response->failed()) {
-            Log::error('Gemini API error', [
-                'status' => $response->status(),
-                'body'   => $response->body(),
+                'generationConfig' => [
+                    'temperature'     => 0.5,
+                    'maxOutputTokens' => 3000,
+                    'topP'            => 0.9,
+                ],
             ]);
-            throw new \Exception('Không thể kết nối đến AI. Vui lòng thử lại sau.');
+
+            if ($response->failed()) {
+                Log::error('Gemini API error', [
+                    'attempt' => $attempt,
+                    'status'  => $response->status(),
+                    'body'    => $response->body(),
+                ]);
+                if ($response->serverError()) {
+                    continue;
+                }
+                throw new \Exception('Không thể kết nối đến AI. Vui lòng thử lại sau.');
+            }
+
+            $body = $response->json();
+            $candidate = $body['candidates'][0] ?? [];
+            $finishReason = $candidate['finishReason'] ?? null;
+
+            // Gemini có thể chia câu trả lời thành nhiều part → ghép lại, bỏ part "thought"
+            $text = collect($candidate['content']['parts'] ?? [])
+                ->reject(fn ($part) => !empty($part['thought']))
+                ->pluck('text')
+                ->implode('');
+
+            if ($finishReason === 'STOP' && trim($text) !== '') {
+                return trim($text);
+            }
+
+            Log::warning('Gemini response bất thường', [
+                'attempt'      => $attempt,
+                'finishReason' => $finishReason,
+                'partsCount'   => count($candidate['content']['parts'] ?? []),
+                'usage'        => $body['usageMetadata'] ?? null,
+                'text'         => $text,
+            ]);
         }
 
-        $body = $response->json();
-
-        $text = $body['candidates'][0]['content']['parts'][0]['text'] ?? null;
-
-        if (empty($text)) {
-            throw new \Exception('AI không trả về kết quả phân tích. Vui lòng thử lại');
-        }
-
-        return trim($text);
+        throw new \Exception('AI trả về kết quả không đầy đủ. Vui lòng thử lại.');
     }
 
     /**
