@@ -2519,6 +2519,13 @@ textarea,
     background: rgba(255, 255, 255, 0.95) !important;
   }
 
+  /* Không có blur thì nền mờ 8% / 55% gần như trong suốt */
+  .ant-message-notice-content,
+  .ant-notification .ant-notification-notice.thong-bao-toast {
+    background: rgba(255, 255, 255, 0.97) !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+  }
+
   .ant-modal-content,
   .ant-dropdown-menu,
   .ant-select-dropdown,
