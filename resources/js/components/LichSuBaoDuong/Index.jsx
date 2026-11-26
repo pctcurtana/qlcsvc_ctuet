@@ -269,10 +269,9 @@ const Index = ({ lichSuBaoDuongs, filters, stats }) => {
                                 prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
                                 size="large"
                                 value={search}
-                                onChange={(e) => {
-                                    setSearch(e.target.value);
-                                    if (!e.target.value) handleSearch('');
-                                }}
+                                onChange={(e) => setSearch(e.target.value)}
+                                // onClear instead of empty-value check: Vietnamese IMEs briefly empty the input when composing the first char
+                                onClear={() => handleSearch('')}
                                 onPressEnter={(e) => handleSearch(e.target.value)}
                                 style={{ width: '100%' }}
                             />

@@ -274,10 +274,9 @@ const Kho = ({ thietBis, stats, phongs, filters }) => {
                                 prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
                                 size="large"
                                 value={searchText}
-                                onChange={(e) => {
-                                    setSearchText(e.target.value);
-                                    if (!e.target.value) handleSearch('');
-                                }}
+                                onChange={(e) => setSearchText(e.target.value)}
+                                // onClear instead of empty-value check: Vietnamese IMEs briefly empty the input when composing the first char
+                                onClear={() => handleSearch('')}
                                 onPressEnter={(e) => handleSearch(e.target.value)}
                             />
                         </Col>

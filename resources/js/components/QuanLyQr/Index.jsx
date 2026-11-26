@@ -325,10 +325,9 @@ const TabPhong = ({ phongs, baseUrl, perm, coSos, khuNhas, filters }) => {
                         prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
                         size="large"
                         value={search}
-                        onChange={e => {
-                            setSearch(e.target.value);
-                            if (!e.target.value) handleSearch('');
-                        }}
+                        onChange={e => setSearch(e.target.value)}
+                        // onClear instead of empty-value check: Vietnamese IMEs briefly empty the input when composing the first char
+                        onClear={() => handleSearch('')}
                         onPressEnter={e => handleSearch(e.target.value)}
                     />
                 </Col>
@@ -616,10 +615,9 @@ const TabThietBi = ({ thietBis, baseUrl, perm, coSos, khuNhas, phongsList, filte
                         prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
                         size="large"
                         value={search}
-                        onChange={e => {
-                            setSearch(e.target.value);
-                            if (!e.target.value) handleSearch('');
-                        }}
+                        onChange={e => setSearch(e.target.value)}
+                        // onClear instead of empty-value check: Vietnamese IMEs briefly empty the input when composing the first char
+                        onClear={() => handleSearch('')}
                         onPressEnter={e => handleSearch(e.target.value)}
                     />
                 </Col>

@@ -224843,8 +224843,12 @@ var Index = function Index(_ref) {
               size: "large",
               value: searchText,
               onChange: function onChange(e) {
-                setSearchText(e.target.value);
-                if (!e.target.value) handleSearch('');
+                return setSearchText(e.target.value);
+              }
+              // onClear instead of empty-value check: Vietnamese IMEs briefly empty the input when composing the first char
+              ,
+              onClear: function onClear() {
+                return handleSearch('');
               },
               onPressEnter: function onPressEnter(e) {
                 return handleSearch(e.target.value);
@@ -229318,8 +229322,12 @@ var Index = function Index(_ref) {
               size: "large",
               value: searchText,
               onChange: function onChange(e) {
-                setSearchText(e.target.value);
-                if (!e.target.value) handleSearch('');
+                return setSearchText(e.target.value);
+              }
+              // onClear instead of empty-value check: Vietnamese IMEs briefly empty the input when composing the first char
+              ,
+              onClear: function onClear() {
+                return handleSearch('');
               },
               onPressEnter: function onPressEnter(e) {
                 return handleSearch(e.target.value);
@@ -230822,8 +230830,12 @@ var Index = function Index(_ref) {
               size: "large",
               value: search,
               onChange: function onChange(e) {
-                setSearch(e.target.value);
-                if (!e.target.value) handleSearch('');
+                return setSearch(e.target.value);
+              }
+              // onClear instead of empty-value check: Vietnamese IMEs briefly empty the input when composing the first char
+              ,
+              onClear: function onClear() {
+                return handleSearch('');
               },
               onPressEnter: function onPressEnter(e) {
                 return handleSearch(e.target.value);
@@ -233189,8 +233201,12 @@ var Index = function Index(_ref) {
               size: "large",
               value: searchText,
               onChange: function onChange(e) {
-                setSearchText(e.target.value);
-                if (!e.target.value) handleSearch('');
+                return setSearchText(e.target.value);
+              }
+              // onClear instead of empty-value check: Vietnamese IMEs briefly empty the input when composing the first char
+              ,
+              onClear: function onClear() {
+                return handleSearch('');
               },
               onPressEnter: function onPressEnter(e) {
                 return handleSearch(e.target.value);
@@ -233761,8 +233777,12 @@ var TabPhong = function TabPhong(_ref3) {
           size: "large",
           value: search,
           onChange: function onChange(e) {
-            setSearch(e.target.value);
-            if (!e.target.value) handleSearch('');
+            return setSearch(e.target.value);
+          }
+          // onClear instead of empty-value check: Vietnamese IMEs briefly empty the input when composing the first char
+          ,
+          onClear: function onClear() {
+            return handleSearch('');
           },
           onPressEnter: function onPressEnter(e) {
             return handleSearch(e.target.value);
@@ -234178,8 +234198,12 @@ var TabThietBi = function TabThietBi(_ref4) {
           size: "large",
           value: search,
           onChange: function onChange(e) {
-            setSearch(e.target.value);
-            if (!e.target.value) handleSearch('');
+            return setSearch(e.target.value);
+          }
+          // onClear instead of empty-value check: Vietnamese IMEs briefly empty the input when composing the first char
+          ,
+          onClear: function onClear() {
+            return handleSearch('');
           },
           onPressEnter: function onPressEnter(e) {
             return handleSearch(e.target.value);
@@ -236603,8 +236627,12 @@ var Index = function Index(_ref) {
               size: "large",
               value: searchText,
               onChange: function onChange(e) {
-                setSearchText(e.target.value);
-                if (!e.target.value) handleSearch('');
+                return setSearchText(e.target.value);
+              }
+              // onClear instead of empty-value check: Vietnamese IMEs briefly empty the input when composing the first char
+              ,
+              onClear: function onClear() {
+                return handleSearch('');
               },
               onPressEnter: function onPressEnter(e) {
                 return handleSearch(e.target.value);
@@ -237266,8 +237294,12 @@ var IndexByPhong = function IndexByPhong(_ref) {
               size: "large",
               value: searchText,
               onChange: function onChange(e) {
-                setSearchText(e.target.value);
-                if (!e.target.value) handleSearch('');
+                return setSearchText(e.target.value);
+              }
+              // onClear instead of empty-value check: Vietnamese IMEs briefly empty the input when composing the first char
+              ,
+              onClear: function onClear() {
+                return handleSearch('');
               },
               onPressEnter: function onPressEnter(e) {
                 return handleSearch(e.target.value);
@@ -237770,8 +237802,12 @@ var Kho = function Kho(_ref) {
               size: "large",
               value: searchText,
               onChange: function onChange(e) {
-                setSearchText(e.target.value);
-                if (!e.target.value) handleSearch('');
+                return setSearchText(e.target.value);
+              }
+              // onClear instead of empty-value check: Vietnamese IMEs briefly empty the input when composing the first char
+              ,
+              onClear: function onClear() {
+                return handleSearch('');
               },
               onPressEnter: function onPressEnter(e) {
                 return handleSearch(e.target.value);
